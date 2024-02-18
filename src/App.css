@@ -1,0 +1,48 @@
+body {
+  margin: 0;
+  font-family: "Arial", sans-serif;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+.instruction-area {
+  width: 30%;
+  height: 90%;
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+.title {
+  text-align: center;
+}
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.text-area {
+  width: 100%;
+  height: 80%;
+  margin-bottom: 10px;
+}
+
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the buttons horizontally */
+}
+
+.submit-button {
+  width: 100%; /* Make all buttons the same width */
+  margin-bottom: 10px;
+  align-items: center;
+  display: flex;
+}
+.download-button {
+  width: 100%; /* Make all buttons the same width */
+  margin-bottom: 10px;
+}

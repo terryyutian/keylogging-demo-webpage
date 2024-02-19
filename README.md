@@ -1,8 +1,8 @@
-## Keystroke_Logging_OpenSource
+## Keystroke_Logging
 
-This is a keystroke logging mechanism to collect keystroke data for research and development purposes.
+This is a simple website to demonstrate a web-based keystroke logging program that can be used to collect keystroke data for research and development purposes.
 
-The keystroke logging mechanism unobtrusively collects information about users' keystroke and mouse operations from the front end using a keystroke logging hook written in React JavaScript. The information is aggregated and posted to the back end whenever the user submit the responses in the chatbot. At the back end, the keystroke information is handled via a FastAPI app that connects to a cloud-based Azure table storage. Finally, all the keystroke information is stored in the Azure table storage in tabular format.
+The keystroke logging program unobtrusively collects information about users' keystroke and mouse operations from the front end using a keystroke logging hook written in React JavaScript.
 
 In the output of keystroke data, as shown below, _Event ID_ indexes the keyboard and mouse operations in chronological order. _EventTime_ denotes the time (in milliseconds) when a key or the mouse was pressed. _Output_ shows the content of the keystroke or mouse event. _Cursor Position_ registers cursor position information to help keep track of the location of the leading edge. Additionally, _Text Change_ shows the exact changes made to the current text while _Activity_ indicates the nature of the changes (e.g., Input, Remove/Cut).
 
@@ -59,5 +59,6 @@ In the output of keystroke data, as shown below, _Event ID_ indexes the keyboard
 
 #### To run this app:
 
-1. First, run the fastAPI app by setting the work directory to BackFastAPI, install the dependencies listed in the requirements.txt, create evn var, and finally run the command: uvicorn keylogging:app
-2. Second, to test the keystroke logging hook, please set the work directory to FrontReact and run the command: `npm run dev`
+1. Make sure you have `npm` installed. If not, run `npm install` in the terminal.
+2. Run the command: `npm run dev` to host the webpage locally.
+3. Follow the instructions on the webpage to try out the keystroke logging program and check the data. Have fun!

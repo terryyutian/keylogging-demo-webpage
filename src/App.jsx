@@ -28,13 +28,13 @@ const ExampleApp = () => {
           <strong>Instructions</strong>
         </p>
         <p>
-          This example webpage can be used to collect and download keystroke
-          logging information for research purposes. A keystroke logging program
-          is developed and embedded in this web app. It runs in the background
-          and stores keystroke information from the text area on the right.
-          Please note that the functionality of this keystroke logging program
-          is confined to the text area. Any keystroke activities outside the
-          text area will not activate the program and thus will not be recorded.
+          This example webpage is used to demonstrate a web-based keystroke
+          logging program for research and development purposes. The keystroke
+          logging program is written in JavaScript and runs in the background to
+          collect keystroke information from the text area on the page. Please
+          note that the functionality of this keystroke logging program is
+          confined to the text area. Any keystroke activities outside the text
+          area will not activate the program and thus will not be recorded.
         </p>
 
         <p>
@@ -48,11 +48,13 @@ const ExampleApp = () => {
         </p>
 
         <p>
-          This example webpage can be customized based on your research needs.
-          For instance, you can replace the instructions here with a writing
-          prompt. You can also set up an API to ingest the keystroke logging
-          data into a cloud-based database. For more information conerning the
-          adaptation of the code and the web design, please contact Yu Tian at{" "}
+          For more information about the code and data format, please visit{" "}
+          <a href="https://github.com/terryyutian/keylogging-demo-webpage">
+            {" "}
+            this github repo
+          </a>
+          . If you want to implement the keystroke logging proram in your
+          applications, please contact Yu Tian at{" "}
           <a href="mailto:terry@levi.digitalharbor.org">
             terry@levi.digitalharbor.org
           </a>

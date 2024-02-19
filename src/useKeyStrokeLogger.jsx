@@ -207,46 +207,6 @@ export function useKeyStrokeLogger({
 
       // // Clean up
       // document.body.removeChild(a);
-
-      // const options = {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      //   },
-      //   body: JSON.stringify(keylog_eedi),
-      // };
-      // fetch(endpoint, options) // Replace the local host with the end point.
-      //   .then((response) => response.json())
-      //   .then((data) => {
-      //     // Handle the response data
-      //     // console.log(data);
-      //     // console.log(keylog_eedi);
-      //   })
-      //   .catch((error) => {
-      //     // Handle errors
-      //     console.error("Error:", error);
-      //   });
-
-      // //empty keylog
-      // keylog.EventID = [];
-      // keylog.EventTime = [];
-      // keylog.FinalProduct = [];
-      // keylog.CursorPosition = [];
-      // keylog.Output = [];
-      // keylog.TaskEnd = [];
-      // keylog.TaskOnSet = [];
-      // keylog.TextChange = [];
-      // keylog.Activity = [];
-      // keylog.TextContent = [];
-      // EventID = 0;
-
-      // // reset variables
-      // EventID = 0;
-      // startSelect = [];
-      // endSelect = [];
-      // ActivityCancel = []; // to keep track of changes caused by control + z
-      // TextChangeCancel = []; // to keep track of changes caused by control + z
     };
 
     const downloadCSV = (keylog) => {

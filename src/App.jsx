@@ -25,7 +25,7 @@ const ExampleApp = () => {
     <div className="app-container">
       <div className="instruction-area">
         <p className="title">
-          <h3>Instructions</h3>
+          <strong>Instructions</strong>
         </p>
         <p>
           This example webpage can be used to collect and download keystroke

@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "start": "vite preview"
+    "start": "run dev"
   },
   "dependencies": {
     "react": "^18.2.0",

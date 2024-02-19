@@ -40,21 +40,19 @@ const ExampleApp = () => {
         <p>
           You can record your keystroke information by entering text in the text
           area on the right. When you finish, click on the <i>Done</i> button.
-          Then you can either download your keystroke information as a CSV file
-          by clicking on the
-          <i>Download as CSV</i> button or as an IDFX file by clicking on the
-          <i>Download as IDFX</i> button. The IDFX file can be processed and
-          analyzed using Inputlog.
+          Then you can download your keystroke information as a CSV file by
+          clicking on the
+          <i>Download as CSV</i> button. You can also download the final text
+          you entered by clicking on the
+          <i>Download Final Text</i> button.
         </p>
 
         <p>
           This example webpage can be customized based on your research needs.
           For instance, you can replace the instructions here with a writing
           prompt. You can also set up an API to ingest the keystroke logging
-          data into a database instead of downloading the data locally, which
-          may help large-scale data collection. For more information conerning
-          the adaptation of the code and the web design, please contact Yu Tian
-          at{" "}
+          data into a cloud-based database. For more information conerning the
+          adaptation of the code and the web design, please contact Yu Tian at{" "}
           <a href="mailto:terry@levi.digitalharbor.org">
             terry@levi.digitalharbor.org
           </a>
@@ -73,6 +71,15 @@ const ExampleApp = () => {
         <div className="buttons-container">
           <div className="download-buttons">
             <button
+              ref={submitButtonRef}
+              onClick={handleButtonClick}
+              style={{ visibility: isSubmitClicked ? "hidden" : "visible" }}
+            >
+              Done
+            </button>
+          </div>
+          <div className="download-buttons">
+            <button
               style={{ visibility: isSubmitClicked ? "visible" : "hidden" }}
               className="download-button"
               ref={downloadcsvRef}
@@ -85,15 +92,6 @@ const ExampleApp = () => {
               ref={downloadtextRef}
             >
               Download Final Text
-            </button>
-          </div>
-          <div className="download-buttons">
-            <button
-              ref={submitButtonRef}
-              onClick={handleButtonClick}
-              style={{ visibility: isSubmitClicked ? "hidden" : "visible" }}
-            >
-              Submit
             </button>
           </div>
         </div>

@@ -7,10 +7,13 @@ import { ActivityDetector } from "./ActivityDetector";
 
 import { CSVConverter } from "./CSVConverter";
 
+import { IDFXConverter } from "./IDFXConverter";
+
 export function useKeyStrokeLogger({
   textAreaRef,
   submitButtonRef,
   downloadcsvRef,
+  downloadidfxRef,
   downloadtextRef,
   // Other parameters for the key stroke logger...
 }) {
@@ -18,6 +21,7 @@ export function useKeyStrokeLogger({
     const c_textAreaRef = textAreaRef.current;
     const c_submitButtonRef = submitButtonRef.current;
     const c_downloadcsvRef = downloadcsvRef.current;
+    const c_downloadidfxRef = downloadidfxRef.current;
     const c_downloadtextRef = downloadtextRef.current;
     let TextareaTouch = false;
     let currentTime = new Date();
@@ -80,6 +84,8 @@ export function useKeyStrokeLogger({
         TextChangeCancel
       );
       // console.log(textNow);
+      console.log(keylog.TextChange.slice(-1));
+      console.log(String(keylog.TextChange.slice(-1)).length);
     };
 
     const handleTouch = () => {
@@ -231,6 +237,28 @@ export function useKeyStrokeLogger({
       document.body.removeChild(a);
     };
 
+    const downloadIDFX = (keylog) => {
+      // concert keylog object into a csv
+      const keylog_idfx = IDFXConverter(keylog);
+
+      //get the date info as the file name
+      const currentDate = new Date();
+      const filename = `${currentDate.getFullYear()}-${
+        currentDate.getMonth() + 1
+      }-${currentDate.getDate()}.idfx`;
+
+      // Create a Blob and create a download link
+      const blob = new Blob([keylog_idfx], { type: "application/xml" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+
+      // Clean up
+      document.body.removeChild(a);
+    };
+
     const downloadText = (keylog) => {
       // concert keylog object into a csv
       const keylog_text = String(keylog.FinalProduct);
@@ -258,6 +286,11 @@ export function useKeyStrokeLogger({
       downloadCSV(keylog);
     };
 
+    const handleDownloadIDFX = (e) => {
+      e.preventDefault();
+      downloadIDFX(keylog);
+    };
+
     const handleDownloadTEXT = (e) => {
       e.preventDefault();
       downloadText(keylog);
@@ -269,6 +302,8 @@ export function useKeyStrokeLogger({
     //const formElement = currentRef?.closest("form");
     const isDownloadCSV =
       c_downloadcsvRef && c_downloadcsvRef.tagName === "BUTTON";
+    const isDownloadIDFX =
+      c_downloadidfxRef && c_downloadidfxRef.tagName === "BUTTON";
     const isDownloadTEXT =
       c_downloadtextRef && c_downloadtextRef.tagName === "BUTTON";
 
@@ -289,6 +324,10 @@ export function useKeyStrokeLogger({
 
     if (isDownloadCSV) {
       c_downloadcsvRef.addEventListener("click", handleDownloadCSV);
+    }
+
+    if (isDownloadIDFX) {
+      c_downloadidfxRef.addEventListener("click", handleDownloadIDFX);
     }
 
     if (isDownloadTEXT) {
@@ -316,9 +355,19 @@ export function useKeyStrokeLogger({
         c_downloadcsvRef.removeEventListener("click", handleDownloadCSV);
       }
 
+      if (isDownloadIDFX) {
+        c_downloadidfxRef.removeEventListener("click", handleDownloadIDFX);
+      }
+
       if (isDownloadTEXT) {
         c_downloadtextRef.removeEventListener("click", handleDownloadTEXT);
       }
     };
-  }, [textAreaRef, submitButtonRef, downloadcsvRef, downloadtextRef]);
+  }, [
+    textAreaRef,
+    submitButtonRef,
+    downloadcsvRef,
+    downloadidfxRef,
+    downloadtextRef,
+  ]);
 }

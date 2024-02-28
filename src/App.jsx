@@ -7,6 +7,7 @@ const ExampleApp = () => {
   const textAreaRef = useRef(null);
   const submitButtonRef = useRef(null);
   const downloadcsvRef = useRef(null);
+  const downloadidfxRef = useRef(null);
   const downloadtextRef = useRef(null);
 
   const [isSubmitClicked, setIsSubmitClicked] = useState(false);
@@ -19,6 +20,7 @@ const ExampleApp = () => {
     textAreaRef,
     submitButtonRef,
     downloadcsvRef,
+    downloadidfxRef,
     downloadtextRef,
   });
   return (
@@ -40,18 +42,16 @@ const ExampleApp = () => {
         <p>
           You can record your keystroke information by entering text in the text
           area on the right. When you finish, click on the <i>Done</i> button.
-          Then you can download your keystroke information as a CSV file by
-          clicking on the
-          <i>Download as CSV</i> button. You can also download the final text
-          you entered by clicking on the
-          <i>Download Final Text</i> button.
+          Then you can download your keystroke information as a CSV file or an
+          IDFX file. Note that the IDFX file can be analzyed using{" "}
+          <a href="https://www.inputlog.net/">Inputlog9</a>.
         </p>
 
         <p>
           For more information about the code and data format, please visit{" "}
           <a href="https://github.com/terryyutian/keylogging-demo-webpage">
             {" "}
-            this github repo
+            this GitHub repo
           </a>
           . If you want to implement the keystroke logging proram in your
           applications, please contact Yu Tian at{" "}
@@ -87,6 +87,13 @@ const ExampleApp = () => {
               ref={downloadcsvRef}
             >
               Download as CSV
+            </button>
+            <button
+              style={{ visibility: isSubmitClicked ? "visible" : "hidden" }}
+              className="download-button"
+              ref={downloadidfxRef}
+            >
+              Download as IDFX
             </button>
             <button
               style={{ visibility: isSubmitClicked ? "visible" : "hidden" }}

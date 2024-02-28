@@ -1,5 +1,4 @@
 export function CSVConverter(keylog) {
-  console.log("fire!!!!!!");
   if (!keylog) {
     console.error("Error: keylog is undefined or null");
     return "";

@@ -468,7 +468,7 @@ function AutoCorrectionDector(keylog) {
       keylog.Activity.push("AutoCorrectionRemove/Cut");
     } else if (replaced.length === 0 && substitute.length > 0) {
       keylog.TextChange.push(substitute);
-      keylog.Activity.push("AutocorrectionPaste");
+      keylog.Activity.push("AutoCorrectionPaste");
     } else {
       keylog.TextChange.push("NoChange");
       keylog.Activity.push("Nonproduction");

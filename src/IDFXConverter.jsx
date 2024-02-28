@@ -57,7 +57,7 @@ export function IDFXConverter(keylog) {
   // add session info
   idfxString +=
     " <session> \n" +
-    meta_xml("Participant", "Me") +
+    meta_xml("Participant", idfxname) +
     meta_xml("Text Language", "EN") +
     meta_xml("Age", "Unknown") +
     meta_xml("Gender", "Unknown") +

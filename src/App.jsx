@@ -30,13 +30,13 @@ const ExampleApp = () => {
           <strong>Instructions</strong>
         </p>
         <p>
-          This example webpage is used to demonstrate a web-based keystroke
-          logging program for research and development purposes. The keystroke
-          logging program is written in JavaScript and runs in the background to
+          This example webpage is used to demonstrate FlexKeyLogger, a web-based
+          keystroke logging program for research and development purposes.
+          FlexKeyLogger is written in JavaScript and runs in the background to
           collect keystroke information from the text area on the page. Please
-          note that the functionality of this keystroke logging program is
-          confined to the text area. Any keystroke activities outside the text
-          area will not activate the program and thus will not be recorded.
+          note that the functionality of FlexKeyLogger is confined to the text
+          area. Any keystroke activities outside the text area will not activate
+          the program and thus will not be recorded.
         </p>
 
         <p>
@@ -53,8 +53,8 @@ const ExampleApp = () => {
             {" "}
             this GitHub repo
           </a>
-          . If you want to implement the keystroke logging proram in your
-          applications, please contact Yu Tian at{" "}
+          . If you want to implement FlexKeyLogger in your applications, please
+          contact Yu Tian at{" "}
           <a href="mailto:terry@levi.digitalharbor.org">
             terry@levi.digitalharbor.org
           </a>

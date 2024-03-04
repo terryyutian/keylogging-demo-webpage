@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import React, { useState } from "react";
 import "./App.css";
-import { useKeyStrokeLogger } from "./useKeyStrokeLogger";
+import { useFlexKeyLogger } from "./FlexKeyLogger";
 
 const ExampleApp = () => {
   const textAreaRef = useRef(null);
@@ -16,7 +16,7 @@ const ExampleApp = () => {
     setIsSubmitClicked(true);
   };
 
-  useKeyStrokeLogger({
+  useFlexKeyLogger({
     textAreaRef,
     submitButtonRef,
     downloadcsvRef,

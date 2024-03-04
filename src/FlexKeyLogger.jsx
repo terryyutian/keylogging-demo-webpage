@@ -9,7 +9,7 @@ import { CSVConverter } from "./CSVConverter";
 
 import { IDFXConverter } from "./IDFXConverter";
 
-export function useKeyStrokeLogger({
+export function useFlexKeyLogger({
   textAreaRef,
   submitButtonRef,
   downloadcsvRef,

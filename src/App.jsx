@@ -46,20 +46,6 @@ const ExampleApp = () => {
           IDFX file. Note that the IDFX file can be analzyed using{" "}
           <a href="https://www.inputlog.net/">Inputlog9</a>.
         </p>
-
-        <p>
-          For more information about the code and data format, please visit{" "}
-          <a href="https://github.com/terryyutian/keylogging-demo-webpage">
-            {" "}
-            this GitHub repo
-          </a>
-          . If you want to implement FlexKeyLogger in your applications, please
-          contact Yu Tian at{" "}
-          <a href="mailto:terry@levi.digitalharbor.org">
-            terry@levi.digitalharbor.org
-          </a>
-          .
-        </p>
       </div>
 
       <div className="main-area">

@@ -1,8 +1,8 @@
-## Keystroke_Logging
+## Keystroke Logging Using FlexKeyLogger
 
-This is a simple website to demonstrate a web-based keystroke logging program that can be used to collect keystroke data for research and development purposes.
+This is a simple demo website to illustrate the use of FlexKeyLogger, a web-based keystroke logging program, to collect keystroke data for research and development purposes.
 
-The keystroke logging program unobtrusively collects information about users' keystroke and mouse operations from the front end using a keystroke logging hook written in React JavaScript.
+FlexKeyLogger is implemented in JavaScript and encapsulated within React hooks. This design allows users to seamlessly incorporate it into ReactJS-based webpages (as illustrated in this demo webpage) or applications, such as chatbots. FlexKeyLogger operates unobtrusively in the background, recording every keystroke and mouse activity along with relevant timing and cursor position information. Additionally, it identifies operation types (e.g., input, delete, paste, replace) and captures text changes during text production in real-time.
 
 In the output of keystroke data, as shown below, _Event ID_ indexes the keyboard and mouse operations in chronological order. _EventTime_ denotes the time (in milliseconds) when a key or the mouse was pressed. _Output_ shows the content of the keystroke or mouse event. _Cursor Position_ registers cursor position information to help keep track of the location of the leading edge. Additionally, _Text Change_ shows the exact changes made to the current text while _Activity_ indicates the nature of the changes (e.g., Input, Remove/Cut).
 

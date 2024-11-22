@@ -54,8 +54,9 @@ const ExampleApp = () => {
         <textarea
           ref={textAreaRef}
           className="text-area"
+          spellCheck="false"
           placeholder="Enter your text here"
-          //spellcheck="false"
+          
         ></textarea>
         <div className="buttons-container">
           <div className="download-buttons">

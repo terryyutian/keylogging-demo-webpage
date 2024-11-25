@@ -27,25 +27,15 @@ const ExampleApp = () => {
     <div className="app-container">
       <div className="instruction-area">
         <p className="title">
-          <strong>Instructions</strong>
+          <strong>영어 작문: 에세이 쓰기</strong>
         </p>
         <p>
-          This example webpage is used to demonstrate FlexKeyLogger, a web-based
-          keystroke logging program for research and development purposes.
-          FlexKeyLogger is written in JavaScript and runs in the background to
-          collect keystroke information from the text area on the page. Please
-          note that the functionality of FlexKeyLogger is confined to the text
-          area. Any keystroke activities outside the text area will not activate
-          the program and thus will not be recorded.
+    주의사항
+    1. 에세이를 쓰는 동안 온라인 사전이나 번역기와 같은 다른 웹사이트 사용 금지
+    2. 에세이 작성을 완전히 끝낸 후 “Done” 버튼 누르기 
+    3. “Done”을 누른 후에 화면에 나타난 “Download as CSV,” “Download as IDFX,” “Download Final Text”를 모두 클릭하여 컴퓨터에 각  파일을 저장 후, 3개 파일 모두 청람사이버에 업로드 하기
         </p>
 
-        <p>
-          You can record your keystroke information by entering text in the text
-          area on the right. When you finish, click on the <i>Done</i> button.
-          Then you can download your keystroke information as a CSV file or an
-          IDFX file. Note that the IDFX file can be analzyed using{" "}
-          <a href="https://www.inputlog.net/">Inputlog9</a>.
-        </p>
       </div>
 
       <div className="main-area">

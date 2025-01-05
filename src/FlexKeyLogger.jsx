@@ -69,6 +69,7 @@ export function useFlexKeyLogger({
       } else if (e.key === "Unidentified") {
         keylog.Output.push("VirtualKeyboardTouch");
       } else {
+
         keylog.Output.push(e.key);
       }
 
@@ -84,8 +85,8 @@ export function useFlexKeyLogger({
         TextChangeCancel
       );
       // console.log(textNow);
-      console.log(keylog.TextChange.slice(-1));
-      console.log(String(keylog.TextChange.slice(-1)).length);
+      // console.log(keylog.TextChange.slice(-1));
+      // console.log(String(keylog.TextChange.slice(-1)).length);
     };
 
     const handleTouch = () => {
@@ -158,7 +159,7 @@ export function useFlexKeyLogger({
         };
         //post the data to the serve
       } else {
-        console.log("submit with a instanitated object");
+        // console.log("submit with a instanitated object");
         keylog.TaskOnSet.push(taskonset); //record task onset time
 
         ///// adjust the keylog data
@@ -225,8 +226,12 @@ export function useFlexKeyLogger({
         currentDate.getMonth() + 1
       }-${currentDate.getDate()}.csv`;
 
+        // Prepend BOM to the CSV string
+      const BOM = "\uFEFF"; // UTF-8 BOM
+      const csvContent = BOM + keylog_csv;
+
       // Create a Blob and create a download link
-      const blob = new Blob([keylog_csv], { type: "text/csv;charset=utf-8;" });
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = filename;

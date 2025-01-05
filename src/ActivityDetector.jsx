@@ -5,13 +5,13 @@ export function ActivityDetector(
   ActivityCancel,
   TextChangeCancel
 ) {
+
   if (keylog.TextContent.length >= 1) {
     // textchange     //activity
     let textNow = String(keylog.TextContent.slice(-2, -1)); // used to guess what happens to the text at the current event.
     let change =
       String(keylog.TextContent.slice(-1)).length -
       String(keylog.TextContent.slice(-2, -1)).length;
-
     if (change === 0) {
       let start = parseInt(startSelect.slice(-2, -1));
       let end = parseInt(endSelect.slice(-2, -1));

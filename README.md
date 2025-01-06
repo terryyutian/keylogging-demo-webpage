@@ -59,6 +59,6 @@ In the output of keystroke data, as shown below, _Event ID_ indexes the keyboard
 
 #### To run this app:
 
-1. First, run `npm install` to install the required dependencies.
+1. First, run `npm install` to install the required dependencies (Make sure you have [Node.js](https://nodejs.org/en) installed on your computer first).
 2. Then, run the command: `npm run dev` to host the webpage locally.
 3. Follow the instructions on the webpage to try out the keystroke logging program and check the data. Have fun!

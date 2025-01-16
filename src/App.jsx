@@ -32,7 +32,9 @@ const ExampleApp = () => {
         <p>
         주어진 주제에 대해서 10분간 한국어로 글을 작성해주세요. 글쓰기가 다 끝나면 [done]버튼을 클릭하고, [Download as CSV], [Download as IDFX], [Download Final Text]를 각각 클릭해서 해당 파일을 다운받아 주세요. 그리고 세 개의 파일을 모두 여기 이메일(sangheek@andrew.cmu.edu)로 보내주세요. 
         </p>
-
+        <p>
+        주제: 시간을 되돌릴 수 있다면, 어느 시점으로 돌아가고 싶나요?
+        </p>
       </div>
 
       <div className="main-area">

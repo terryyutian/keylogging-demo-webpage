@@ -30,10 +30,7 @@ const ExampleApp = () => {
           <strong>영어 작문: 에세이 쓰기</strong>
         </p>
         <p>
-    주의사항
-    1. 에세이를 쓰는 동안 온라인 사전이나 번역기와 같은 다른 웹사이트 사용 금지
-    2. 에세이 작성을 완전히 끝낸 후 “Done” 버튼 누르기 
-    3. “Done”을 누른 후에 화면에 나타난 “Download as CSV,” “Download as IDFX,” “Download Final Text”를 모두 클릭하여 컴퓨터에 각  파일을 저장 후, 3개 파일 모두 청람사이버에 업로드 하기
+        주어진 주제에 대해서 10분간 한국어로 글을 작성해주세요. 글쓰기가 다 끝나면 [done]버튼을 클릭하고, [Download as CSV], [Download as IDFX], [Download Final Text]를 각각 클릭해서 해당 파일을 다운받아 주세요. 그리고 세 개의 파일을 모두 여기 이메일(sangheek@andrew.cmu.edu)로 보내주세요. 
         </p>
 
       </div>

@@ -27,7 +27,7 @@ const ExampleApp = () => {
     <div className="app-container">
       <div className="instruction-area">
         <p className="title">
-          <strong>영어 작문: 에세이 쓰기</strong>
+          <strong>한국어 작문</strong>
         </p>
         <p>
         주어진 주제에 대해서 10분간 한국어로 글을 작성해주세요. 글쓰기가 다 끝나면 [done]버튼을 클릭하고, [Download as CSV], [Download as IDFX], [Download Final Text]를 각각 클릭해서 해당 파일을 다운받아 주세요. 그리고 세 개의 파일을 모두 여기 이메일(sangheek@andrew.cmu.edu)로 보내주세요. 

@@ -1,56 +1,68 @@
+// src/CSVConverter.jsx
+
 export function CSVConverter(keylog) {
-  if (!keylog) {
-    console.error("Error: keylog is undefined or null");
+  if (!keylog || typeof keylog !== "object") {
+    console.error("CSVConverter error: keylog is missing or invalid");
     return "";
-  } else {
-    const keylog_core = {
-      EventID: keylog.EventID,
-      EventTime: keylog.EventTime,
-      Output: keylog.Output,
-      CursorPosition: keylog.CursorPosition,
-      TextChange: keylog.TextChange,
-      Activity: keylog.Activity,
-    };
-
-    // Ensure all arrays have the same length
-    const maxArrayLength = Math.max(
-      keylog_core.EventID.length,
-      keylog_core.EventTime.length,
-      keylog_core.Output.length,
-      keylog_core.CursorPosition.length,
-      keylog_core.TextChange.length,
-      keylog_core.Activity.length
-    );
-
-    // Pad arrays with undefined values to make them of the same length
-    const normalizeArrayLength = (arr, length) => {
-      while (arr.length < length) {
-        arr.push(undefined); // or any default value you want
-      }
-    };
-
-    normalizeArrayLength(keylog_core.EventID, maxArrayLength);
-    normalizeArrayLength(keylog_core.EventTime, maxArrayLength);
-    normalizeArrayLength(keylog_core.Output, maxArrayLength);
-    normalizeArrayLength(keylog_core.CursorPosition, maxArrayLength);
-    normalizeArrayLength(keylog_core.TextChange, maxArrayLength);
-    normalizeArrayLength(keylog_core.Activity, maxArrayLength);
-    const headers = Object.keys(keylog_core);
-    const csvRows = [headers.join(",")];
-
-    // Create CSV rows
-    for (let i = 0; i < maxArrayLength; i++) {
-      const row = headers.map((header) => {
-        // Handle values containing commas by enclosing them in double quotes
-        const value = keylog[header][i];
-        return typeof value === "string" &&
-          (value.includes(",") || value.includes("\n"))
-          ? `"${value}"`
-          : value;
-      });
-      csvRows.push(row.join(","));
-    }
-
-    return csvRows.join("\n");
   }
+
+  // Extract only the core arrays we want exported
+  const original = {
+    EventID: keylog.EventID || [],
+    EventTime: keylog.EventTime || [],
+    Output: keylog.Output || [],
+    CursorPosition: keylog.CursorPosition || [],
+    TextChange: keylog.TextChange || [],
+    Activity: keylog.Activity || [],
+  };
+
+  // Determine max row count
+  const maxLen = Math.max(
+    original.EventID.length,
+    original.EventTime.length,
+    original.Output.length,
+    original.CursorPosition.length,
+    original.TextChange.length,
+    original.Activity.length
+  );
+
+  // Normalize all arrays to maxLen (copying to avoid mutating original)
+  const normalize = (arr) => {
+    const copy = [...arr];
+    while (copy.length < maxLen) copy.push("");
+    return copy;
+  };
+
+  const data = {
+    EventID: normalize(original.EventID),
+    EventTime: normalize(original.EventTime),
+    Output: normalize(original.Output),
+    CursorPosition: normalize(original.CursorPosition),
+    TextChange: normalize(original.TextChange),
+    Activity: normalize(original.Activity),
+  };
+
+  const headers = Object.keys(data);
+
+  // Helper for proper CSV escaping
+  const escapeCSV = (value) => {
+    if (value === null || value === undefined) return "";
+    const str = String(value);
+    // Needs quotes if contains comma, quote, or newline
+    if (/[",\n]/.test(str)) {
+      // Escape internal quotes by doubling them
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+
+  const rows = [];
+  rows.push(headers.join(",")); // header row
+
+  for (let i = 0; i < maxLen; i++) {
+    const row = headers.map((header) => escapeCSV(data[header][i]));
+    rows.push(row.join(","));
+  }
+
+  return rows.join("\n");
 }

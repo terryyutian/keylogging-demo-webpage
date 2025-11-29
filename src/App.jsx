@@ -1,71 +1,33 @@
-import { useRef } from "react";
-import React, { useState } from "react";
-import "./App.css";
-import { useFlexKeyLogger } from "./FlexKeyLogger";
+// src/App.jsx
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-const ExampleApp = () => {
-  const textAreaRef = useRef(null);
-  const submitButtonRef = useRef(null);
-  const downloadcsvRef = useRef(null);
-  const downloadidfxRef = useRef(null);
-  const downloadtextRef = useRef(null);
+import VocabularyIntro from "./pages/VocabularyIntro";
+import VocabularyTest from "./pages/VocabularyTest";
+import WritingIntro from "./pages/WritingIntro";
+import WritingTest from "./pages/WritingTest";
+import ThankYou from "./pages/ThankYou";
 
-  const [isSubmitClicked, setIsSubmitClicked] = useState(false);
-
-  const handleButtonClick = () => {
-    setIsSubmitClicked(true);
-  };
-
-  useFlexKeyLogger({
-    textAreaRef,
-    submitButtonRef,
-    downloadcsvRef,
-    downloadidfxRef,
-    downloadtextRef,
-  });
+function App() {
   return (
-    <div className="app-container">
-      <div className="instruction-area">
-        <p className="title">
-          <strong>Instructions</strong>
-        </p>
-        <p>
-          Content from Prompt 1 or 2
-        </p>
+    <BrowserRouter>
+      <Routes>
+        {/* Vocabulary Pages */}
+        <Route path="/vocab" element={<VocabularyIntro />} />
+        <Route path="/vocab-test" element={<VocabularyTest />} />
 
-        <p>
-          •	Write independently for 30 minutes.
-          •	Write at least 200 words.
-          •	Write at least three paragraphs.
-          •	Do not leave this page while writing.
+        {/* Writing Pages */}
+        <Route path="/writing-instructions" element={<WritingIntro />} />
+        <Route path="/writing" element={<WritingTest />} />
 
-        </p>
-      </div>
+        {/* Final Page */}
+        <Route path="/finish" element={<ThankYou />} />
 
-      <div className="main-area">
-        {" "}
-        {/* Right side */}
-        <textarea
-          ref={textAreaRef}
-          className="text-area"
-          spellCheck="false"
-          placeholder="Enter your text here"
-          
-        ></textarea>
-        <div className="buttons-container">
-          <div className="download-buttons">
-            <button
-              ref={submitButtonRef}
-              onClick={handleButtonClick}
-              style={{ visibility: isSubmitClicked ? "hidden" : "visible" }}
-            >
-              Submit
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+        {/* Default Route (optional: send to vocab intro) */}
+        <Route path="*" element={<VocabularyIntro />} />
+      </Routes>
+    </BrowserRouter>
   );
-};
+}
 
-export default ExampleApp;
+export default App;

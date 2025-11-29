@@ -1,0 +1,158 @@
+/* Overall page */
+.demo-page {
+  background: #e9f3ff; /* very light blue */
+  min-height: 100vh;
+  padding: 40px 12px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* Main card */
+.demo-card {
+  background: white;
+  width: 100%;
+  max-width: 800px;
+  padding: 30px 40px;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* Title */
+.demo-title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #003d73;
+}
+
+/* Question blocks */
+.q-block {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #d8e2f0;
+}
+
+label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+  color: #002b4c;
+}
+
+/* Inputs */
+.demo-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid #b9c7db;
+  border-radius: 8px;
+  background: #fafcff;
+  box-sizing: border-box;
+}
+
+/* Radio layout */
+.radio-row {
+  display: flex;
+  gap: 20px;
+}
+
+/* Citizenship dropdown */
+.dropdown {
+  width: 100%;
+}
+
+.dropdown-summary {
+  padding: 12px;
+  border: 1px solid #b9c7db;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #fafcff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-summary:hover {
+  background: #f0f6ff;
+}
+
+.dropdown-count {
+  color: #486a8a;
+  font-size: 14px;
+}
+
+.dropdown-panel {
+  background: white;
+  border: 1px solid #b9c7db;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.dropdown-search {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #b9c7db;
+  border-radius: 8px;
+}
+
+.dropdown-options {
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.dropdown-footer {
+  text-align: right;
+  margin-top: 12px;
+}
+
+.dropdown-footer button {
+  padding: 6px 14px;
+  border: 1px solid #8ba3c0;
+  background: #e7f0ff;
+  border-radius: 6px;
+}
+
+.dropdown-footer button:hover {
+  background: #d7e8ff;
+}
+
+/* Buttons */
+.button-row {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.demo-button {
+  padding: 14px 28px;
+  background: #1976d2;
+  color: white;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  min-width: 180px;
+}
+
+.demo-button:hover {
+  background: #145fa3;
+}
+
+.error {
+  text-align: center;
+  color: red;
+  margin-bottom: 20px;
+}

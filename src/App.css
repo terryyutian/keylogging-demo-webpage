@@ -46,3 +46,85 @@ body {
   width: 100%; /* Make all buttons the same width */
   margin-bottom: 10px;
 }
+
+/* Center page title */
+h2, h1 {
+  text-align: center;
+}
+
+/* Standard long input fields */
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+/* Citizenship dropdown styling */
+.dropdown-container {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.dropdown {
+  position: relative;
+  display: block;
+  max-width: 100%;
+}
+
+.dropdown-summary {
+  padding: 12px;
+  background: #f7f7f7;
+  border: 1px solid #aaa;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-display.placeholder {
+  color: #888;
+}
+
+.dropdown-panel {
+  background: #ffffff;
+  border: 1px solid #ccc;
+  padding: 12px;
+  margin-top: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.dropdown-search {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+.dropdown-options {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.dropdown-option {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+  align-items: center;
+}
+
+.dropdown-close {
+  padding: 6px 14px;
+  background: #ddd;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.dropdown-close:hover {
+  background: #ccc;
+}

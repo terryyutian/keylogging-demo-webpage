@@ -1,54 +1,38 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import "../styles/AppTheme.css";
 
 export default function WritingIntro() {
   const navigate = useNavigate();
 
-  const startWriting = () => {
-    navigate("/writing"); // This will be your actual writing page with keylogger
-  };
-
   return (
-    <div style={{ maxWidth: 800, margin: "auto", padding: 30, lineHeight: 1.6 }}>
-      <h1 style={{ textAlign: "center" }}>Writing Task Instructions</h1>
+    <div className="page-wrapper">
+      <div className="card">
+        <h1 className="page-title">Writing Task Instructions</h1>
 
-      <p>
-        You will write a <strong>persuasive essay</strong> in response to a prompt
-        we provide.
-      </p>
+        <p className="page-text">
+          You will write a <strong>persuasive essay</strong> in response to a
+          prompt.
+        </p>
 
-      <h3>Requirements</h3>
-      <ul>
-        <li>Write for <strong>30 minutes</strong>.</li>
-        <li>At least <strong>200 words</strong> and <strong>three paragraphs</strong>.</li>
-        <li>Write independently in your own words.</li>
-      </ul>
+        <h2 className="section-title">Requirements</h2>
+        <ul className="page-text">
+          <li>Write for up to <strong>30 minutes</strong>.</li>
+          <li>At least <strong>200 words</strong>.</li>
+          <li>At least <strong>three paragraphs</strong>.</li>
+        </ul>
 
-      <h3>Restrictions</h3>
-      <ul>
-        <li>Do <strong>not</strong> use AI tools, search engines, notes, or any external resources.</li>
-        <li>Stay focused and avoid unrelated activities until you finish.</li>
-      </ul>
+        <h2 className="section-title">Restrictions</h2>
+        <ul className="page-text">
+          <li>Do NOT use AI tools, search engines, or outside materials.</li>
+          <li>Do NOT refresh or leave this page once the task begins.</li>
+        </ul>
 
-      <p style={{ marginTop: 30 }}>
-        After you click the button below, the writing task will begin.
-      </p>
-
-      <div style={{ textAlign: "center", marginTop: 40 }}>
-        <button
-          onClick={startWriting}
-          style={{
-            padding: "12px 28px",
-            fontSize: 20,
-            backgroundColor: "#0066cc",
-            color: "white",
-            border: "none",
-            borderRadius: 8,
-            cursor: "pointer"
-          }}
-        >
-          Begin Writing Task
-        </button>
+        <div className="button-row">
+          <button className="primary-button" onClick={() => navigate("/writing")}>
+            Begin Writing Task
+          </button>
+        </div>
       </div>
     </div>
   );

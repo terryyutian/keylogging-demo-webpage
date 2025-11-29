@@ -1,13 +1,17 @@
+// src/pages/WritingTest.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import { useFlexKeyLogger } from "../FlexKeyLogger";
+import "../styles/AppTheme.css";
+import "../styles/WritingTest.css";
 
 export default function WritingTest() {
   const navigate = useNavigate();
 
   const textAreaRef = useRef(null);
   const submitButtonRef = useRef(null);
+  const taskStartedAt = useRef(new Date()); // Actual start timestamp
 
   // =====================================
   // PROMPTS
@@ -29,9 +33,7 @@ export default function WritingTest() {
   const [prompt, setPrompt] = useState(null);
   const [text, setText] = useState("");
   const [wordCount, setWordCount] = useState(0);
-
   const [timeLeft, setTimeLeft] = useState(30 * 60);
-  const [allowSubmit, setAllowSubmit] = useState(false);
 
   // =====================================
   // RANDOM PROMPT
@@ -42,7 +44,7 @@ export default function WritingTest() {
   }, []);
 
   // =====================================
-  // WORD COUNT
+  // WORD COUNT (for display only)
   // =====================================
   useEffect(() => {
     const wc = text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -50,17 +52,7 @@ export default function WritingTest() {
   }, [text]);
 
   // =====================================
-  // UNLOCK SUBMIT
-  // =====================================
-  useEffect(() => {
-    const elapsed = 30 * 60 - timeLeft;
-    if (wordCount >= 200 || elapsed >= 20 * 60) {
-      setAllowSubmit(true);
-    }
-  }, [wordCount, timeLeft]);
-
-  // =====================================
-  // COUNTDOWN TIMER
+  // TIMER
   // =====================================
   useEffect(() => {
     const timer = setInterval(() => {
@@ -76,7 +68,7 @@ export default function WritingTest() {
   };
 
   // =====================================
-  // TAB INACTIVITY WARNING
+  // TAB WARNING
   // =====================================
   useEffect(() => {
     const handler = () => {
@@ -97,16 +89,15 @@ export default function WritingTest() {
   });
 
   // =====================================
-  // SUBMIT HANDLER
+  // SUBMIT HANDLER (always available)
   // =====================================
   const handleSubmit = async () => {
-    const confirmSubmit = window.confirm("Are you sure you want to submit your essay?");
-    if (!confirmSubmit) return;
+    if (!window.confirm("Are you sure you want to submit your essay?")) return;
 
     const participant_id = sessionStorage.getItem("participant_id");
     const session_id = sessionStorage.getItem("session_id");
 
-    // 1. INSERT INTO writing_texts
+    // Save writing
     const { data: writingRows, error: writingErr } = await supabase
       .from("writing_texts")
       .insert([
@@ -118,7 +109,7 @@ export default function WritingTest() {
           text,
           word_count: wordCount,
           paragraph_count: text.split(/\n\s*\n/).length,
-          task_onset: new Date(Date.now() - (30 * 60 - timeLeft) * 1000),
+          task_onset: taskStartedAt.current,
           task_end: new Date(),
         },
       ])
@@ -132,7 +123,7 @@ export default function WritingTest() {
 
     const writing_id = writingRows.id;
 
-    // 2. GET KEYLOG DATA FROM LOGGER
+    // Save keystrokes
     const keylog = textAreaRef.current?._keylog ?? null;
 
     if (!keylog || !keylog.EventID) {
@@ -141,7 +132,6 @@ export default function WritingTest() {
       return;
     }
 
-    // 3. FORMAT KEYLOG EVENTS FOR SUPABASE
     const rows = keylog.EventID.map((_, i) => ({
       participant_id,
       session_id,
@@ -155,13 +145,8 @@ export default function WritingTest() {
       activity: keylog.Activity[i],
     }));
 
-    // 4. BATCH INSERT KEYLOGS
     const { error: logErr } = await supabase.from("keystroke_logs").insert(rows);
-
-    if (logErr) {
-      alert("Error saving keystroke logs.");
-      console.error(logErr);
-    }
+    if (logErr) console.error(logErr);
 
     alert("Your essay has been submitted.");
     navigate("/finish");
@@ -173,63 +158,68 @@ export default function WritingTest() {
   // UI
   // =====================================
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div className="writing-layout">
+
       {/* LEFT SIDE */}
-      <div style={{ width: "30%", padding: 20, background: "#f0f0f0" }}>
-        <h2>Writing Task</h2>
-        <p><strong>Prompt</strong></p>
-        <p>{prompt.text}</p>
+      <div className="writing-sidebar">
+        <h2 className="writing-title">Writing Task</h2>
 
-        <h3>Instructions</h3>
-        <ul>
+        <div className="writing-prompt-box">
+          <p><strong>Prompt:</strong></p>
+          <p className="prompt-text">{prompt.text}</p>
+        </div>
+
+        <h3 className="instruction-title">Instructions</h3>
+        <ul className="instruction-list">
           <li>Write independently for 30 minutes.</li>
-          <li>Write at least 200 words.</li>
-          <li>Write at least three paragraphs.</li>
-          <li>Do not leave this page while writing.</li>
+          <li>Write your own original work.</li>
+          <li>Do not leave or refresh this page.</li>
+          <li>Copy/paste is disabled to ensure fairness.</li>
         </ul>
-
-        <p style={{ marginTop: 20 }}><strong>Time Left:</strong></p>
-        <p style={{ fontSize: 24 }}>{formatTime(timeLeft)}</p>
       </div>
 
       {/* RIGHT SIDE */}
-      <div style={{ flex: 1, padding: 20 }}>
+      <div className="writing-main">
+
+        {/* Timer */}
+        <div className="timer-right">
+          <strong>Time Left:</strong> {formatTime(timeLeft)}
+        </div>
+
         <textarea
           ref={textAreaRef}
+          className="writing-textarea"
           placeholder="Start writing your essay here..."
           spellCheck="false"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          style={{
-            width: "100%",
-            height: "75%",
-            padding: 10,
-            fontSize: 16,
+          // Disable copy/paste/cut/right-click
+          onPaste={(e) => e.preventDefault()}
+          onCopy={(e) => e.preventDefault()}
+          onCut={(e) => e.preventDefault()}
+          onContextMenu={(e) => e.preventDefault()}
+          onDrop={(e) => e.preventDefault()}
+          onKeyDown={(e) => {
+            if ((e.ctrlKey || e.metaKey) &&
+              (e.key === "c" || e.key === "v" || e.key === "x")) {
+              e.preventDefault();
+            }
           }}
         />
 
-        <div style={{ textAlign: "right", marginTop: 10 }}>
-          Word Count: {wordCount}
+        <div className="word-count">Word Count: {wordCount}</div>
+
+        {/* Submit ALWAYS shown and active */}
+        <div className="submit-container">
+          <button
+            ref={submitButtonRef}
+            className="submit-button"
+            onClick={handleSubmit}
+          >
+            Submit Essay
+          </button>
         </div>
 
-        {allowSubmit && (
-          <div style={{ textAlign: "center", marginTop: 20 }}>
-            <button
-              ref={submitButtonRef}
-              onClick={handleSubmit}
-              style={{
-                padding: "12px 28px",
-                fontSize: 20,
-                backgroundColor: "#28a745",
-                color: "white",
-                border: "none",
-                borderRadius: 8,
-              }}
-            >
-              Submit Essay
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+// src/FlexKeyLogger.js
 import { useEffect } from "react";
 import { ActivityDetector } from "./ActivityDetector";
 
@@ -9,7 +10,7 @@ export function useFlexKeyLogger({
     const textarea = textAreaRef.current;
     const submitBtn = submitButtonRef.current;
 
-    if (!textarea) return; // nothing to attach yet
+    if (!textarea) return; 
 
     let TextareaTouch = false;
     const taskonset = Date.now();
@@ -33,9 +34,8 @@ export function useFlexKeyLogger({
       FinalProduct: [],
     };
 
-    // ----------------------
-    // Stable HANDLER DEFINITIONS
-    // ----------------------
+    // ★ Make logs accessible to WritingTest.jsx
+    textarea._keylog = keylog;
 
     const handleCursor = () => {
       keylog.CursorPosition.push(textarea.selectionEnd);
@@ -43,8 +43,8 @@ export function useFlexKeyLogger({
       endSelect.push(textarea.selectionEnd);
     };
 
-    const logCurrentText = (value) => {
-      keylog.TextContent.push(value);
+    const logCurrentText = () => {
+      keylog.TextContent.push(String(textarea.value));
     };
 
     const handleKeyDown = (e) => {
@@ -57,7 +57,7 @@ export function useFlexKeyLogger({
       else if (e.key === "Unidentified") keylog.Output.push("VirtualKeyboardTouch");
       else keylog.Output.push(e.key);
 
-      logCurrentText(textarea.value);
+      logCurrentText();
       handleCursor();
 
       ActivityDetector(
@@ -76,21 +76,47 @@ export function useFlexKeyLogger({
     const handleMouseDown = (e) => {
       const now = Date.now();
       keylog.EventTime.push(now - taskonset);
-
       EventID++;
       keylog.EventID.push(EventID);
 
-      if (e.button === 0) {
-        keylog.Output.push(TextareaTouch ? "TextareaTouch" : "Leftclick");
-      } else if (e.button === 1) {
-        keylog.Output.push(TextareaTouch ? "TextareaTouch" : "Middleclick");
-      } else if (e.button === 2) {
-        keylog.Output.push(TextareaTouch ? "TextareaTouch" : "Rightclick");
-      } else {
-        keylog.Output.push(TextareaTouch ? "TextareaTouch" : "Unknownclick");
+      if (e.button === 0) keylog.Output.push("Leftclick");
+      else if (e.button === 1) keylog.Output.push("Middleclick");
+      else if (e.button === 2) keylog.Output.push("Rightclick");
+      else keylog.Output.push("Unknownclick");
+
+      logCurrentText();
+      handleCursor();
+
+      ActivityDetector(
+        keylog,
+        startSelect,
+        endSelect,
+        ActivityCancel,
+        TextChangeCancel
+      );
+    };
+
+    const handleSubmit = () => {
+      if (EventID === 0) {
+        textarea._keylog = {
+          EventID: [0],
+          EventTime: [0],
+          Output: ["NA"],
+          CursorPosition: [0],
+          TextContent: [""],
+          TextChange: ["NoChange"],
+          Activity: ["Nonproduction"],
+          FinalProduct: ["The author wrote nothing."],
+        };
+        return;
       }
 
-      logCurrentText(textarea.value);
+      keylog.TaskOnSet.push(taskonset);
+      keylog.TextContent.push(String(textarea.value));
+      keylog.FinalProduct = String(
+        keylog.TextContent[keylog.TextContent.length - 1]
+      );
+
       handleCursor();
 
       ActivityDetector(
@@ -101,67 +127,25 @@ export function useFlexKeyLogger({
         TextChangeCancel
       );
 
-      TextareaTouch = false;
+      keylog.TextChange.shift();
+      keylog.Activity.shift();
+      keylog.CursorPosition.shift();
+
+      keylog.TaskEnd.push(Date.now());
     };
 
-    const handleSubmit = (e) => {
-      e.preventDefault();
-
-      if (EventID === 0) {
-        keylog = {
-          EventID: [0],
-          EventTime: [0],
-          Output: ["NA"],
-          CursorPosition: [0],
-          TextContent: [0],
-          TextChange: ["NoChange"],
-          Activity: ["Nonproduction"],
-          FinalProduct: ["The author wrote nothing."],
-        };
-      } else {
-        keylog.TaskOnSet.push(taskonset);
-
-        keylog.TextContent.push(String(textarea.value));
-        keylog.FinalProduct = String(keylog.TextContent.slice(-1));
-
-        handleCursor();
-
-        ActivityDetector(
-          keylog,
-          startSelect,
-          endSelect,
-          ActivityCancel,
-          TextChangeCancel
-        );
-
-        keylog.TextChange.shift();
-        keylog.Activity.shift();
-        keylog.CursorPosition.shift();
-
-        keylog.TaskEnd.push(Date.now());
-      }
-    };
-
-
-    // ------------------------
-    // Attach listeners (stable references)
-    // ------------------------
-
+    // Attach handlers
     textarea.addEventListener("keydown", handleKeyDown);
     textarea.addEventListener("touchstart", handleTouchStart);
     textarea.addEventListener("mousedown", handleMouseDown);
 
     if (submitBtn) submitBtn.addEventListener("click", handleSubmit);
 
-    // ------------------------
-    // Cleanup (removes exactly the same handlers)
-    // ------------------------
     return () => {
       textarea.removeEventListener("keydown", handleKeyDown);
       textarea.removeEventListener("touchstart", handleTouchStart);
       textarea.removeEventListener("mousedown", handleMouseDown);
-
       if (submitBtn) submitBtn.removeEventListener("click", handleSubmit);
     };
-  }, []); // run once only
+  }, [textAreaRef.current, submitButtonRef.current]);
 }

@@ -1,8 +1,9 @@
 // src/pages/WritingTest.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 import { useFlexKeyLogger } from "../FlexKeyLogger";
+
 import "../styles/AppTheme.css";
 import "../styles/WritingTest.css";
 
@@ -11,11 +12,11 @@ export default function WritingTest() {
 
   const textAreaRef = useRef(null);
   const submitButtonRef = useRef(null);
-  const taskStartedAt = useRef(new Date()); // Actual start timestamp
+  const taskStartedAt = useRef(new Date());
 
-  // =====================================
+  // ================================
   // PROMPTS
-  // =====================================
+  // ================================
   const PROMPTS = [
     {
       id: 1,
@@ -27,33 +28,33 @@ export default function WritingTest() {
     },
   ];
 
-  // =====================================
+  // ================================
   // STATE
-  // =====================================
+  // ================================
   const [prompt, setPrompt] = useState(null);
   const [text, setText] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30 * 60);
 
-  // =====================================
-  // RANDOM PROMPT
-  // =====================================
+  // ================================
+  // LOAD PROMPT
+  // ================================
   useEffect(() => {
     const p = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
     setPrompt(p);
   }, []);
 
-  // =====================================
-  // WORD COUNT (for display only)
-  // =====================================
+  // ================================
+  // WORD COUNT
+  // ================================
   useEffect(() => {
     const wc = text.trim() ? text.trim().split(/\s+/).length : 0;
     setWordCount(wc);
   }, [text]);
 
-  // =====================================
+  // ================================
   // TIMER
-  // =====================================
+  // ================================
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((t) => (t > 0 ? t - 1 : 0));
@@ -67,37 +68,40 @@ export default function WritingTest() {
     return `${m}:${s}`;
   };
 
-  // =====================================
-  // TAB WARNING
-  // =====================================
+  // ================================
+  // PAGE LEAVE WARNING
+  // ================================
   useEffect(() => {
     const handler = () => {
-      if (document.hidden) {
-        alert("Please stay focused on the writing task.");
-      }
+      if (document.hidden) alert("Please stay focused on the writing task.");
     };
     document.addEventListener("visibilitychange", handler);
     return () => document.removeEventListener("visibilitychange", handler);
   }, []);
 
-  // =====================================
-  // KEYLOGGER
-  // =====================================
+  // ================================
+  // KEYLOGGER (MUST RUN OUTSIDE EFFECT)
+  // ================================
   useFlexKeyLogger({
     textAreaRef,
     submitButtonRef,
   });
 
-  // =====================================
-  // SUBMIT HANDLER (always available)
-  // =====================================
+  // Autofocus when ready
+  useEffect(() => {
+    if (textAreaRef.current) textAreaRef.current.focus();
+  }, [prompt]);
+
+  // ================================
+  // SUBMIT HANDLER
+  // ================================
   const handleSubmit = async () => {
     if (!window.confirm("Are you sure you want to submit your essay?")) return;
 
     const participant_id = sessionStorage.getItem("participant_id");
     const session_id = sessionStorage.getItem("session_id");
 
-    // Save writing
+    // Save writing text
     const { data: writingRows, error: writingErr } = await supabase
       .from("writing_texts")
       .insert([
@@ -123,15 +127,18 @@ export default function WritingTest() {
 
     const writing_id = writingRows.id;
 
-    // Save keystrokes
+    // ================================
+    // RETRIEVE KEYLOG OBJECT
+    // ================================
     const keylog = textAreaRef.current?._keylog ?? null;
 
-    if (!keylog || !keylog.EventID) {
+    if (!keylog || !keylog.EventID || keylog.EventID.length === 0) {
       alert("No keystroke data detected.");
       navigate("/finish");
       return;
     }
 
+    // Convert keylogger output to DB rows
     const rows = keylog.EventID.map((_, i) => ({
       participant_id,
       session_id,
@@ -145,22 +152,34 @@ export default function WritingTest() {
       activity: keylog.Activity[i],
     }));
 
-    const { error: logErr } = await supabase.from("keystroke_logs").insert(rows);
+    // Insert keystrokes to DB
+    const { error: logErr } = await supabase
+      .from("keystroke_logs")
+      .insert(rows);
+
     if (logErr) console.error(logErr);
 
     alert("Your essay has been submitted.");
     navigate("/finish");
   };
 
-  if (!prompt) return <div>Loading prompt...</div>;
+  // ================================
+  // RENDER
+  // ================================
+  if (!prompt) {
+    return (
+      <div className="writing-layout">
+        <div className="writing-main">
+          <div className="timer-right">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
-  // =====================================
-  // UI
-  // =====================================
   return (
     <div className="writing-layout">
 
-      {/* LEFT SIDE */}
+      {/* LEFT PANEL */}
       <div className="writing-sidebar">
         <h2 className="writing-title">Writing Task</h2>
 
@@ -173,18 +192,15 @@ export default function WritingTest() {
         <ul className="instruction-list">
           <li>Write independently for 30 minutes.</li>
           <li>Write your own original work.</li>
-          <li>Do not leave or refresh this page.</li>
-          <li>Copy/paste is disabled to ensure fairness.</li>
+          <li>Do not refresh or leave this page.</li>
+          <li>Copy/paste is disabled.</li>
         </ul>
       </div>
 
-      {/* RIGHT SIDE */}
+      {/* MAIN PANEL */}
       <div className="writing-main">
 
-        {/* Timer */}
-        <div className="timer-right">
-          <strong>Time Left:</strong> {formatTime(timeLeft)}
-        </div>
+        <div className="timer-right">{formatTime(timeLeft)}</div>
 
         <textarea
           ref={textAreaRef}
@@ -193,6 +209,7 @@ export default function WritingTest() {
           spellCheck="false"
           value={text}
           onChange={(e) => setText(e.target.value)}
+
           // Disable copy/paste/cut/right-click
           onPaste={(e) => e.preventDefault()}
           onCopy={(e) => e.preventDefault()}
@@ -201,7 +218,7 @@ export default function WritingTest() {
           onDrop={(e) => e.preventDefault()}
           onKeyDown={(e) => {
             if ((e.ctrlKey || e.metaKey) &&
-              (e.key === "c" || e.key === "v" || e.key === "x")) {
+                ["c", "v", "x"].includes(e.key.toLowerCase())) {
               e.preventDefault();
             }
           }}
@@ -209,7 +226,6 @@ export default function WritingTest() {
 
         <div className="word-count">Word Count: {wordCount}</div>
 
-        {/* Submit ALWAYS shown and active */}
         <div className="submit-container">
           <button
             ref={submitButtonRef}
@@ -219,7 +235,6 @@ export default function WritingTest() {
             Submit Essay
           </button>
         </div>
-
       </div>
     </div>
   );

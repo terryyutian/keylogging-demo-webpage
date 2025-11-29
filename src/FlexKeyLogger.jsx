@@ -65,7 +65,7 @@ export function useFlexKeyLogger({
       else if (e.key === "Unidentified") keylog.Output.push("VirtualKeyboardTouch");
       else keylog.Output.push(e.key);
 
-      logCurrentText(e.target.value);
+      logCurrentText(textarea.value);
       handleCursor();
 
       ActivityDetector(
@@ -98,7 +98,7 @@ export function useFlexKeyLogger({
         keylog.Output.push(TextareaTouch ? "TextareaTouch" : "Unknownclick");
       }
 
-      logCurrentText(e.target.value);
+      logCurrentText(textarea.value);
       handleCursor();
 
       ActivityDetector(

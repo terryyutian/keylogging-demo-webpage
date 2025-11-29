@@ -30,21 +30,15 @@ const ExampleApp = () => {
           <strong>Instructions</strong>
         </p>
         <p>
-          This example webpage is used to demonstrate FlexKeyLogger, a web-based
-          keystroke logging program for research and development purposes.
-          FlexKeyLogger is written in JavaScript and runs in the background to
-          collect keystroke information from the text area on the page. Please
-          note that the functionality of FlexKeyLogger is confined to the text
-          area. Any keystroke activities outside the text area will not activate
-          the program and thus will not be recorded.
+          Content from Prompt 1 or 2
         </p>
 
         <p>
-          You can record your keystroke information by entering text in the text
-          area on the right. When you finish, click on the <i>Done</i> button.
-          Then you can download your keystroke information as a CSV file or an
-          IDFX file. Note that the IDFX file can be analzyed using{" "}
-          <a href="https://www.inputlog.net/">Inputlog9</a>.
+          •	Write independently for 30 minutes.
+          •	Write at least 200 words.
+          •	Write at least three paragraphs.
+          •	Do not leave this page while writing.
+
         </p>
       </div>
 
@@ -65,30 +59,7 @@ const ExampleApp = () => {
               onClick={handleButtonClick}
               style={{ visibility: isSubmitClicked ? "hidden" : "visible" }}
             >
-              Done
-            </button>
-          </div>
-          <div className="download-buttons">
-            <button
-              style={{ visibility: isSubmitClicked ? "visible" : "hidden" }}
-              className="download-button"
-              ref={downloadcsvRef}
-            >
-              Download as CSV
-            </button>
-            <button
-              style={{ visibility: isSubmitClicked ? "visible" : "hidden" }}
-              className="download-button"
-              ref={downloadidfxRef}
-            >
-              Download as IDFX
-            </button>
-            <button
-              style={{ visibility: isSubmitClicked ? "visible" : "hidden" }}
-              className="download-button"
-              ref={downloadtextRef}
-            >
-              Download Final Text
+              Submit
             </button>
           </div>
         </div>

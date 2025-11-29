@@ -1,21 +1,13 @@
 import { useEffect } from "react";
 import { ActivityDetector } from "./ActivityDetector";
-import { CSVConverter } from "./CSVConverter";
-import { IDFXConverter } from "./IDFXConverter";
 
 export function useFlexKeyLogger({
   textAreaRef,
   submitButtonRef,
-  downloadcsvRef,
-  downloadidfxRef,
-  downloadtextRef,
 }) {
   useEffect(() => {
     const textarea = textAreaRef.current;
     const submitBtn = submitButtonRef.current;
-    const csvBtn = downloadcsvRef.current;
-    const idfxBtn = downloadidfxRef.current;
-    const textBtn = downloadtextRef.current;
 
     if (!textarea) return; // nothing to attach yet
 
@@ -150,36 +142,6 @@ export function useFlexKeyLogger({
       }
     };
 
-    const handleDownloadCSV = (e) => {
-      e.preventDefault();
-      const csv = CSVConverter(keylog);
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-    };
-
-    const handleDownloadIDFX = (e) => {
-      e.preventDefault();
-      const idfx = IDFXConverter(keylog);
-      const blob = new Blob([idfx], { type: "application/xml" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${new Date().toISOString().slice(0, 10)}.idfx`;
-      a.click();
-    };
-
-    const handleDownloadTEXT = (e) => {
-      e.preventDefault();
-      const blob = new Blob([String(keylog.FinalProduct)], {
-        type: "text/plain;charset=utf-8;",
-      });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${new Date().toISOString().slice(0, 10)}.txt`;
-      a.click();
-    };
 
     // ------------------------
     // Attach listeners (stable references)
@@ -190,9 +152,6 @@ export function useFlexKeyLogger({
     textarea.addEventListener("mousedown", handleMouseDown);
 
     if (submitBtn) submitBtn.addEventListener("click", handleSubmit);
-    if (csvBtn) csvBtn.addEventListener("click", handleDownloadCSV);
-    if (idfxBtn) idfxBtn.addEventListener("click", handleDownloadIDFX);
-    if (textBtn) textBtn.addEventListener("click", handleDownloadTEXT);
 
     // ------------------------
     // Cleanup (removes exactly the same handlers)
@@ -203,9 +162,6 @@ export function useFlexKeyLogger({
       textarea.removeEventListener("mousedown", handleMouseDown);
 
       if (submitBtn) submitBtn.removeEventListener("click", handleSubmit);
-      if (csvBtn) csvBtn.removeEventListener("click", handleDownloadCSV);
-      if (idfxBtn) idfxBtn.removeEventListener("click", handleDownloadIDFX);
-      if (textBtn) textBtn.removeEventListener("click", handleDownloadTEXT);
     };
   }, []); // run once only
 }

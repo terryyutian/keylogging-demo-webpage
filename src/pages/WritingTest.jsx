@@ -147,7 +147,6 @@ export default function WritingTest() {
       event_time: keylog.EventTime[i],
       output: keylog.Output[i],
       cursor_position: keylog.CursorPosition[i],
-      text_content: keylog.TextContent[i],
       text_change: keylog.TextChange[i],
       activity: keylog.Activity[i],
     }));

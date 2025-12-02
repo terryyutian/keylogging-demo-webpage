@@ -35,6 +35,8 @@ export default function WritingTest() {
   const [text, setText] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30 * 60);
+  const [isUploading, setIsUploading] = useState(false);
+
 
   // ================================
   // LOAD PROMPT
@@ -92,11 +94,32 @@ export default function WritingTest() {
     if (textAreaRef.current) textAreaRef.current.focus();
   }, [prompt]);
 
+
+
+  // Warn user not to close tab during upload
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isUploading) {
+        e.preventDefault();
+        e.returnValue = "Your data is still being saved. Please wait.";
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isUploading]);
+
+
   // ================================
   // SUBMIT HANDLER
   // ================================
   const handleSubmit = async () => {
     if (!window.confirm("Are you sure you want to submit your essay?")) return;
+    setIsUploading(true);
 
     const participant_id = sessionStorage.getItem("participant_id");
     const session_id = sessionStorage.getItem("session_id");
@@ -157,6 +180,8 @@ export default function WritingTest() {
       .insert(rows);
 
     if (logErr) console.error(logErr);
+
+    setIsUploading(false); 
 
     alert("Your essay has been submitted.");
     navigate("/finish");

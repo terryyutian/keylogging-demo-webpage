@@ -48,8 +48,10 @@ const COUNTRY_LIST = [
   "Ukraine","United Arab Emirates",
   "United Kingdom of Great Britain and Northern Ireland",
   "United Republic of Tanzania","Uruguay","Uzbekistan",
-  "Vanuatu","Venezuela, Bolivarian Republic of...","Viet Nam","Yemen","Zambia","Zimbabwe"
+  "Vanuatu","Venezuela, bolivarian Republic of...","Viet Nam","Yemen","Zambia","Zimbabwe"
 ];
+
+const NON_NATIVE_MSG = "You must be a native English speaker to participate";
 
 export default function Demographics() {
   const navigate = useNavigate();
@@ -57,22 +59,15 @@ export default function Demographics() {
   const [prolificId, setProlificId] = useState(null);
   const [sessionId, setSessionId] = useState(null);
 
-  // -------------------------
-  // FORM STATE
-  // -------------------------
   const [form, setForm] = useState({
-    prolificIdInput: "",   // Q0
+    prolificIdInput: "",
     age: "",
     gender: "",
     citizenship: [],
     ethnicity: "",
     education: "",
     englishFirst: "",
-    nativeLanguage: "",
-    ageStartEnglish: "",
-    yearsStudiedEnglish: "",
-    yearsInUS: "",
-    writingSkill: "", // NEW: replaces writing_enjoyment
+    writingSkill: "",
   });
 
   const [citizenshipSearch, setCitizenshipSearch] = useState("");
@@ -93,6 +88,20 @@ export default function Demographics() {
     }
     setSessionId(sid);
   }, []);
+
+  // -------------------------
+  // IMMEDIATE Q6 RULE FEEDBACK
+  // -------------------------
+  useEffect(() => {
+    // If they pick "No", show the error immediately.
+    if (form.englishFirst === "No") {
+      setErrorMsg(NON_NATIVE_MSG);
+      return;
+    }
+
+    // If they switch away from "No", clear *that specific* error.
+    setErrorMsg((prev) => (prev === NON_NATIVE_MSG ? null : prev));
+  }, [form.englishFirst]);
 
   // -------------------------
   // CITIZENSHIP SELECT LOGIC
@@ -126,12 +135,8 @@ export default function Demographics() {
     if (!form.education) return "Please select your education level.";
     if (!form.englishFirst) return "Please answer the first-language question.";
 
-    if (form.englishFirst === "No") {
-      if (!form.nativeLanguage) return "Please enter your native language.";
-      if (!form.ageStartEnglish) return "Please enter age you started English.";
-      if (!form.yearsStudiedEnglish) return "Please enter years studied.";
-      if (!form.yearsInUS) return "Please enter years in the U.S.";
-    }
+    // still block submission (in case someone bypasses the UI)
+    if (form.englishFirst === "No") return NON_NATIVE_MSG;
 
     if (!form.writingSkill)
       return "Please answer the writing skill question.";
@@ -159,15 +164,8 @@ export default function Demographics() {
       ethnicity: form.ethnicity,
       education_level: form.education,
 
-      english_first_language: form.englishFirst === "Yes",
-      native_language:
-        form.englishFirst === "No" ? form.nativeLanguage : null,
-      age_start_learning_english:
-        form.englishFirst === "No" ? Number(form.ageStartEnglish) : null,
-      years_studied_english:
-        form.englishFirst === "No" ? Number(form.yearsStudiedEnglish) : null,
-      years_in_us:
-        form.englishFirst === "No" ? Number(form.yearsInUS) : null,
+      // guaranteed true by validation
+      english_first_language: true,
 
       writing_skill: Number(form.writingSkill),
 
@@ -218,10 +216,7 @@ export default function Demographics() {
             type="number"
             className="demo-input"
             value={form.age}
-            onChange={(e) => {
-              const v = e.target.value;
-              setForm({ ...form, age: v });
-            }}
+            onChange={(e) => setForm({ ...form, age: e.target.value })}
           />
         </div>
 
@@ -231,9 +226,7 @@ export default function Demographics() {
           <select
             className="demo-input"
             value={form.gender}
-            onChange={(e) =>
-              setForm({ ...form, gender: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, gender: e.target.value })}
           >
             <option value="">Select...</option>
             <option>Male</option>
@@ -270,9 +263,7 @@ export default function Demographics() {
 
               <div className="dropdown-options">
                 {COUNTRY_LIST.filter((c) =>
-                  c.toLowerCase().includes(
-                    citizenshipSearch.toLowerCase()
-                  )
+                  c.toLowerCase().includes(citizenshipSearch.toLowerCase())
                 ).map((country) => (
                   <label className="dropdown-option" key={country}>
                     <input
@@ -305,9 +296,7 @@ export default function Demographics() {
           <select
             className="demo-input"
             value={form.ethnicity}
-            onChange={(e) =>
-              setForm({ ...form, ethnicity: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, ethnicity: e.target.value })}
           >
             <option value="">Select...</option>
             <option>American Indian or Alaska Native</option>
@@ -326,9 +315,7 @@ export default function Demographics() {
           <select
             className="demo-input"
             value={form.education}
-            onChange={(e) =>
-              setForm({ ...form, education: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, education: e.target.value })}
           >
             <option value="">Select...</option>
             <option>No schooling completed</option>
@@ -376,70 +363,13 @@ export default function Demographics() {
           </div>
         </div>
 
-        {/* Conditional L2 Questions */}
-        {form.englishFirst === "No" && (
-          <>
-            <div className="q-block">
-              <label>What is your native language?</label>
-              <input
-                type="text"
-                className="demo-input"
-                value={form.nativeLanguage}
-                onChange={(e) =>
-                  setForm({ ...form, nativeLanguage: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="q-block">
-              <label>At what age did you start learning English?</label>
-              <input
-                type="number"
-                className="demo-input"
-                value={form.ageStartEnglish}
-                onChange={(e) =>
-                  setForm({ ...form, ageStartEnglish: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="q-block">
-              <label>How many years have you studied English?</label>
-              <input
-                type="number"
-                step="0.1"
-                className="demo-input"
-                value={form.yearsStudiedEnglish}
-                onChange={(e) =>
-                  setForm({ ...form, yearsStudiedEnglish: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="q-block">
-              <label>How many years have you been in the U.S.?</label>
-              <input
-                type="number"
-                step="0.1"
-                className="demo-input"
-                value={form.yearsInUS}
-                onChange={(e) =>
-                  setForm({ ...form, yearsInUS: e.target.value })
-                }
-              />
-            </div>
-          </>
-        )}
-
         {/* Q7 Writing Skill */}
         <div className="q-block">
           <label>Q7: I am good at writing</label>
           <select
             className="demo-input"
             value={form.writingSkill}
-            onChange={(e) =>
-              setForm({ ...form, writingSkill: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, writingSkill: e.target.value })}
           >
             <option value="">Select...</option>
             <option value="1">1 - Strongly Disagree</option>

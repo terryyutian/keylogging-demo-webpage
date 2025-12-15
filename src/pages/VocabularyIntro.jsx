@@ -19,13 +19,13 @@ export default function VocabularyIntro() {
 
         <p className="page-text">
           On each trial, you will see a string of letters. Your task is to decide
-          whether it is an <strong>existing English word</strong>.
+          whether it is an <strong>English word</strong>.
         </p>
 
         <p className="page-text">
-          If you believe it <strong>is</strong> a real English word, click
+          If you believe it <strong>is</strong> an English word, click
           <strong> YES</strong>.  
-          If you believe it is <strong>not</strong> a real word, click
+          If you believe it is <strong>not</strong> a word, click
           <strong> NO</strong>.
         </p>
 

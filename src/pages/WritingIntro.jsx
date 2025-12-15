@@ -17,7 +17,7 @@ export default function WritingIntro() {
 
         <h2 className="section-title">Requirements</h2>
         <ul className="page-text">
-          <li>Write for up to <strong>30 minutes</strong>.</li>
+          <li>Write for up to <strong>20 minutes</strong>.</li>
           <li>At least <strong>200 words</strong>.</li>
           <li>At least <strong>three paragraphs</strong>.</li>
         </ul>

@@ -34,7 +34,7 @@ export default function WritingTest() {
   const [prompt, setPrompt] = useState(null);
   const [text, setText] = useState("");
   const [wordCount, setWordCount] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(30 * 60);
+  const [timeLeft, setTimeLeft] = useState(20 * 60);
   const [isUploading, setIsUploading] = useState(false);
 
 
@@ -214,7 +214,7 @@ export default function WritingTest() {
 
         <h3 className="instruction-title">Instructions</h3>
         <ul className="instruction-list">
-          <li>Write independently for 30 minutes.</li>
+          <li>Write independently for 20 minutes.</li>
           <li>Write your own original work.</li>
           <li>Do not refresh or leave this page.</li>
           <li>Copy/paste is disabled.</li>

@@ -14,12 +14,12 @@ export default function VocabularyIntro() {
 
         <p className="page-text">
           You will complete <strong>80 trials</strong> to test whether you can
-          identify real English words.
+          identify English words.
         </p>
 
         <p className="page-text">
           On each trial, you will see a string of letters. Your task is to decide
-          whether it is an <strong>English word</strong>.
+          whether it is an <strong>English</strong> word.
         </p>
 
         <p className="page-text">

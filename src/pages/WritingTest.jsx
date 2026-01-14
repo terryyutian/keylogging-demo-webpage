@@ -37,7 +37,6 @@ export default function WritingTest() {
   const [timeLeft, setTimeLeft] = useState(20 * 60);
   const [isUploading, setIsUploading] = useState(false);
 
-
   // ================================
   // LOAD PROMPT
   // ================================
@@ -94,8 +93,6 @@ export default function WritingTest() {
     if (textAreaRef.current) textAreaRef.current.focus();
   }, [prompt]);
 
-
-
   // Warn user not to close tab during upload
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -107,84 +104,110 @@ export default function WritingTest() {
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isUploading]);
-
 
   // ================================
   // SUBMIT HANDLER
   // ================================
   const handleSubmit = async () => {
+    // Prevent double-submits while uploading
+    if (isUploading) return;
+
+    // NEW: Word count gate
+    if (wordCount < 200) {
+      alert("Please continue writing to increase the word count to at least 200 words.");
+      // Nice UX: put cursor back in the textarea
+      if (textAreaRef.current) textAreaRef.current.focus();
+      return;
+    }
+
     if (!window.confirm("Are you sure you want to submit your essay?")) return;
+
     setIsUploading(true);
 
-    const participant_id = sessionStorage.getItem("participant_id");
-    const session_id = sessionStorage.getItem("session_id");
+    try {
+      const participant_id = sessionStorage.getItem("participant_id");
+      const session_id = sessionStorage.getItem("session_id");
 
-    // Save writing text
-    const { data: writingRows, error: writingErr } = await supabase
-      .from("writing_texts")
-      .insert([
-        {
-          participant_id,
-          session_id,
-          prompt_id: prompt.id,
-          prompt_text: prompt.text,
-          text,
-          word_count: wordCount,
-          paragraph_count: text.split(/\n\s*\n/).length,
-          task_onset: taskStartedAt.current,
-          task_end: new Date(),
-        },
-      ])
-      .select()
-      .single();
+      if (!participant_id || !session_id) {
+        alert("Missing participant/session info. Please restart the study session.");
+        return;
+      }
 
-    if (writingErr) {
-      alert("Error saving your writing.");
-      return;
-    }
+      if (!prompt) {
+        alert("Prompt not loaded. Please wait a moment and try again.");
+        return;
+      }
 
-    const writing_id = writingRows.id;
+      // Save writing text
+      const { data: writingRows, error: writingErr } = await supabase
+        .from("writing_texts")
+        .insert([
+          {
+            participant_id,
+            session_id,
+            prompt_id: prompt.id,
+            prompt_text: prompt.text,
+            text,
+            word_count: wordCount,
+            paragraph_count: text.split(/\n\s*\n/).length,
+            task_onset: taskStartedAt.current,
+            task_end: new Date(),
+          },
+        ])
+        .select()
+        .single();
 
-    // ================================
-    // RETRIEVE KEYLOG OBJECT
-    // ================================
-    const keylog = textAreaRef.current?._keylog ?? null;
+      if (writingErr) {
+        console.error(writingErr);
+        alert("Error saving your writing.");
+        return;
+      }
 
-    if (!keylog || !keylog.EventID || keylog.EventID.length === 0) {
-      alert("No keystroke data detected.");
+      const writing_id = writingRows.id;
+
+      // ================================
+      // RETRIEVE KEYLOG OBJECT
+      // ================================
+      const keylog = textAreaRef.current?._keylog ?? null;
+
+      if (!keylog || !keylog.EventID || keylog.EventID.length === 0) {
+        alert("No keystroke data detected.");
+        navigate("/finish");
+        return;
+      }
+
+      // Convert keylogger output to DB rows
+      const rows = keylog.EventID.map((_, i) => ({
+        participant_id,
+        session_id,
+        writing_id,
+        event_id: keylog.EventID[i],
+        event_time: keylog.EventTime[i],
+        output: keylog.Output[i],
+        cursor_position: keylog.CursorPosition[i],
+        text_change: keylog.TextChange[i],
+        activity: keylog.Activity[i],
+      }));
+
+      // Insert keystrokes to DB
+      const { error: logErr } = await supabase.from("keystroke_logs").insert(rows);
+
+      if (logErr) {
+        console.error(logErr);
+        // You can decide whether you want to block completion on log errors.
+        // Currently it matches your old behavior (log error but proceed).
+      }
+
+      alert("Your essay has been submitted.");
       navigate("/finish");
-      return;
+    } catch (err) {
+      console.error(err);
+      alert("Unexpected error occurred while submitting. Please try again.");
+    } finally {
+      setIsUploading(false);
     }
-
-    // Convert keylogger output to DB rows
-    const rows = keylog.EventID.map((_, i) => ({
-      participant_id,
-      session_id,
-      writing_id,
-      event_id: keylog.EventID[i],
-      event_time: keylog.EventTime[i],
-      output: keylog.Output[i],
-      cursor_position: keylog.CursorPosition[i],
-      text_change: keylog.TextChange[i],
-      activity: keylog.Activity[i],
-    }));
-
-    // Insert keystrokes to DB
-    const { error: logErr } = await supabase
-      .from("keystroke_logs")
-      .insert(rows);
-
-    if (logErr) console.error(logErr);
-
-    setIsUploading(false); 
-
-    alert("Your essay has been submitted.");
-    navigate("/finish");
   };
 
   // ================================
@@ -202,13 +225,14 @@ export default function WritingTest() {
 
   return (
     <div className="writing-layout">
-
       {/* LEFT PANEL */}
       <div className="writing-sidebar">
         <h2 className="writing-title">Writing Task</h2>
 
         <div className="writing-prompt-box">
-          <p><strong>Prompt:</strong></p>
+          <p>
+            <strong>Prompt:</strong>
+          </p>
           <p className="prompt-text">{prompt.text}</p>
         </div>
 
@@ -223,7 +247,6 @@ export default function WritingTest() {
 
       {/* MAIN PANEL */}
       <div className="writing-main">
-
         <div className="timer-right">{formatTime(timeLeft)}</div>
 
         <textarea
@@ -233,7 +256,6 @@ export default function WritingTest() {
           spellCheck="false"
           value={text}
           onChange={(e) => setText(e.target.value)}
-
           // Disable copy/paste/cut/right-click
           onPaste={(e) => e.preventDefault()}
           onCopy={(e) => e.preventDefault()}
@@ -241,8 +263,10 @@ export default function WritingTest() {
           onContextMenu={(e) => e.preventDefault()}
           onDrop={(e) => e.preventDefault()}
           onKeyDown={(e) => {
-            if ((e.ctrlKey || e.metaKey) &&
-                ["c", "v", "x"].includes(e.key.toLowerCase())) {
+            if (
+              (e.ctrlKey || e.metaKey) &&
+              ["c", "v", "x"].includes(e.key.toLowerCase())
+            ) {
               e.preventDefault();
             }
           }}
@@ -255,8 +279,10 @@ export default function WritingTest() {
             ref={submitButtonRef}
             className="submit-button"
             onClick={handleSubmit}
+            disabled={isUploading}
+            aria-busy={isUploading}
           >
-            Submit Essay
+            {isUploading ? "Submitting..." : "Submit Essay"}
           </button>
         </div>
       </div>

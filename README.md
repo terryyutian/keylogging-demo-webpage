@@ -1,8 +1,19 @@
-## Keystroke Logging Using FlexKeyLogger
+# Keystroke Logging Using FlexKeyLogger (ReactJS Version)
 
-This is a simple demo website to illustrate the use of FlexKeyLogger, a web-based keystroke logging program, to collect keystroke data for research and development purposes.
+This repository contains a **demo ReactJS web application** that
+illustrates the use of **FlexKeyLogger**, a web-based keystroke logging
+program developed for **research and development purposes**.
 
-FlexKeyLogger is implemented in JavaScript and encapsulated within React hooks. This design allows users to seamlessly incorporate it into ReactJS-based webpages (as illustrated in this demo webpage) or applications, such as chatbots. FlexKeyLogger operates unobtrusively in the background, recording every keystroke and mouse activity along with relevant timing and cursor position information. Additionally, it identifies operation types (e.g., input, delete, paste, replace) and captures text changes during text production in real-time.
+FlexKeyLogger records fine-grained writing process data---keystrokes,
+mouse actions, cursor movements, timing information, and text
+changes---in real time. The demo app shows how FlexKeyLogger can be
+embedded into a React application with minimal effort.
+
+------------------------------------------------------------------------
+
+## Overview of FlexKeyLogger
+
+FFlexKeyLogger is implemented in JavaScript and encapsulated within React hooks. This design allows users to seamlessly incorporate it into ReactJS-based webpages (as illustrated in this demo webpage) or applications, such as chatbots. FlexKeyLogger operates unobtrusively in the background, recording every keystroke and mouse activity along with relevant timing and cursor position information. Additionally, it identifies operation types (e.g., input, delete, paste, replace) and captures text changes during text production in real-time.
 
 In the output of keystroke data, as shown below, _Event ID_ indexes the keyboard and mouse operations in chronological order. _EventTime_ denotes the time (in milliseconds) when a key or the mouse was pressed. _Output_ shows the content of the keystroke or mouse event. _Cursor Position_ registers cursor position information to help keep track of the location of the leading edge. Additionally, _Text Change_ shows the exact changes made to the current text while _Activity_ indicates the nature of the changes (e.g., Input, Remove/Cut).
 
@@ -57,8 +68,150 @@ In the output of keystroke data, as shown below, _Event ID_ indexes the keyboard
 | 47       | 59421      | Shift     | 25              | NoChange    | Nonproduction                 |
 | 48       | 59634      | !         | 26              | !           | Input                         |
 
-#### To run this app:
+------------------------------------------------------------------------
 
-1. First, run `npm install` to install the required dependencies (Make sure you have [Node.js](https://nodejs.org/en) installed on your computer first).
-2. Then, run the command: `npm run dev` to host the webpage locally.
-3. Follow the instructions on the webpage to try out the keystroke logging program and check the data. Have fun!
+## Running the Demo App
+
+### Prerequisites
+
+-   Node.js (version 16 or later recommended)
+-   npm (comes with Node.js)
+
+### Steps
+
+1.  Install dependencies:
+
+    ``` bash
+    npm install
+    ```
+
+2.  Start the development server:
+
+    ``` bash
+    npm run dev
+    ```
+
+3.  Open the local URL shown in the terminal (typically
+    `http://localhost:5173`).
+
+4.  Follow the on-screen instructions to type text and inspect the
+    keystroke data.
+
+------------------------------------------------------------------------
+
+## Adapting FlexKeyLogger to Your Own React App
+
+FlexKeyLogger is designed to be **plug-and-play** for React
+applications.
+
+### Step 1: Import the hook
+
+Copy `FlexKeyLogger.jsx` (and its dependencies such as
+`ActivityDetector.jsx`) into your project, then import the hook:
+
+``` js
+import { useFlexKeyLogger } from "./FlexKeyLogger";
+```
+
+------------------------------------------------------------------------
+
+### Step 2: Create refs for UI elements
+
+FlexKeyLogger attaches event listeners via React refs:
+
+``` js
+import { useRef } from "react";
+
+const textAreaRef = useRef(null);
+const submitButtonRef = useRef(null);
+```
+
+Optional refs (only needed if you support exporting/downloading data):
+
+``` js
+const downloadcsvRef = useRef(null);
+const downloadidfxRef = useRef(null);
+const downloadtextRef = useRef(null);
+```
+
+------------------------------------------------------------------------
+
+### Step 3: Call `useFlexKeyLogger`
+
+Invoke the hook inside your component:
+
+``` js
+useFlexKeyLogger({
+  textAreaRef,
+  submitButtonRef,
+  downloadcsvRef,
+  downloadidfxRef,
+  downloadtextRef,
+});
+```
+
+This automatically attaches event listeners when the component mounts
+and cleans them up when the component unmounts.
+
+------------------------------------------------------------------------
+
+### Step 4: Attach refs to JSX elements
+
+Bind the refs to your JSX:
+
+``` jsx
+<textarea
+  ref={textAreaRef}
+  spellCheck="false"
+  placeholder="Enter your text here"
+/>
+
+<button ref={submitButtonRef}>
+  Done
+</button>
+```
+
+FlexKeyLogger will begin logging as soon as the user interacts with the
+textarea.
+
+------------------------------------------------------------------------
+
+### Step 5: Customize behavior (optional)
+
+You can adapt FlexKeyLogger to your needs by:
+
+-   Replacing the **Done** button with a timer or form submission
+-   Sending keystroke data to a backend instead of downloading files
+-   Extending logging to additional event types
+
+------------------------------------------------------------------------
+
+## Design Philosophy
+
+FlexKeyLogger is designed to be:
+
+-   **Non-intrusive**
+-   **High-resolution**
+-   **React lifecycle--aware**
+-   **Research-oriented**
+
+------------------------------------------------------------------------
+
+## Intended Use Cases
+
+FlexKeyLogger is suitable for:
+
+-   Writing process research
+-   Educational technology experiments
+-   Automated writing feedback systems
+-   Human--AI interaction studies
+-   Learning analytics pipelines
+
+------------------------------------------------------------------------
+
+## Summary
+
+This demo illustrates how FlexKeyLogger can be embedded into a ReactJS
+application with minimal setup. By leveraging React hooks and refs,
+FlexKeyLogger provides a flexible and extensible solution for capturing
+detailed writing process data in modern web applications.

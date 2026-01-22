@@ -51,7 +51,10 @@ const COUNTRY_LIST = [
   "Vanuatu","Venezuela, bolivarian Republic of...","Viet Nam","Yemen","Zambia","Zimbabwe"
 ];
 
-const NON_NATIVE_MSG = "You must be a native English speaker to participate";
+const NON_NATIVE_CONFIRM_TEXT =
+  "Thank you for your interest. This study is limited to native English speakers.\n\nPlease click OK to return to Prolific and return your submission.";
+
+const PROLIFIC_RETURN_URL = "https://app.prolific.com/";
 
 export default function Demographics() {
   const navigate = useNavigate();
@@ -60,7 +63,6 @@ export default function Demographics() {
   const [sessionId, setSessionId] = useState(null);
 
   const [form, setForm] = useState({
-    prolificIdInput: "",
     age: "",
     gender: "",
     citizenship: [],
@@ -90,20 +92,6 @@ export default function Demographics() {
   }, []);
 
   // -------------------------
-  // IMMEDIATE Q6 RULE FEEDBACK
-  // -------------------------
-  useEffect(() => {
-    // If they pick "No", show the error immediately.
-    if (form.englishFirst === "No") {
-      setErrorMsg(NON_NATIVE_MSG);
-      return;
-    }
-
-    // If they switch away from "No", clear *that specific* error.
-    setErrorMsg((prev) => (prev === NON_NATIVE_MSG ? null : prev));
-  }, [form.englishFirst]);
-
-  // -------------------------
   // CITIZENSHIP SELECT LOGIC
   // -------------------------
   const toggleCitizenship = (country) => {
@@ -122,8 +110,9 @@ export default function Demographics() {
   // VALIDATION
   // -------------------------
   const validate = () => {
-    if (!form.prolificIdInput && !prolificId)
-      return "Please enter your Prolific ID.";
+    // Prolific ID must come from URL now
+    if (!prolificId)
+      return "Missing Prolific ID in the study link. Please return to Prolific and relaunch the study.";
 
     if (!form.age || Number(form.age) < 18)
       return "You must be at least 18 years old to participate.";
@@ -136,12 +125,33 @@ export default function Demographics() {
     if (!form.englishFirst) return "Please answer the first-language question.";
 
     // still block submission (in case someone bypasses the UI)
-    if (form.englishFirst === "No") return NON_NATIVE_MSG;
+    if (form.englishFirst === "No")
+      return "This study is limited to native English speakers.";
 
-    if (!form.writingSkill)
-      return "Please answer the writing skill question.";
+    if (!form.writingSkill) return "Please answer the writing skill question.";
 
     return null;
+  };
+
+  // -------------------------
+  // SCREEN: Q6 ("No") CONFIRM → REDIRECT TO PROLIFIC
+  // -------------------------
+  const handleEnglishFirstChange = (value) => {
+    // Always update the selection
+    setForm((prev) => ({ ...prev, englishFirst: value }));
+
+    if (value === "No") {
+      const ok = window.confirm(NON_NATIVE_CONFIRM_TEXT);
+
+      if (ok) {
+        // Redirect to Prolific immediately (same tab)
+        window.location.assign(PROLIFIC_RETURN_URL);
+        return;
+      } else {
+        // Cancel means they can keep answering; clear selection to force a valid answer later
+        setForm((prev) => ({ ...prev, englishFirst: "" }));
+      }
+    }
   };
 
   // -------------------------
@@ -153,10 +163,8 @@ export default function Demographics() {
 
     setLoading(true);
 
-    const prolific_id_final = form.prolificIdInput || prolificId;
-
     const payload = {
-      prolific_id: prolific_id_final,
+      prolific_id: prolificId,
       session_id: sessionId,
       age: Number(form.age),
       gender: form.gender,
@@ -194,20 +202,6 @@ export default function Demographics() {
         <h1 className="demo-title">Demographic Survey</h1>
 
         {errorMsg && <p className="error">{errorMsg}</p>}
-
-        {/* Q0 */}
-        <div className="q-block">
-          <label>Q0: What is your Prolific ID?</label>
-          <input
-            type="text"
-            className="demo-input"
-            placeholder="Enter your Prolific ID"
-            value={form.prolificIdInput}
-            onChange={(e) =>
-              setForm({ ...form, prolificIdInput: e.target.value })
-            }
-          />
-        </div>
 
         {/* Q1 */}
         <div className="q-block">
@@ -341,9 +335,7 @@ export default function Demographics() {
                 name="englishFirst"
                 value="Yes"
                 checked={form.englishFirst === "Yes"}
-                onChange={(e) =>
-                  setForm({ ...form, englishFirst: e.target.value })
-                }
+                onChange={(e) => handleEnglishFirstChange(e.target.value)}
               />
               Yes
             </label>
@@ -354,9 +346,7 @@ export default function Demographics() {
                 name="englishFirst"
                 value="No"
                 checked={form.englishFirst === "No"}
-                onChange={(e) =>
-                  setForm({ ...form, englishFirst: e.target.value })
-                }
+                onChange={(e) => handleEnglishFirstChange(e.target.value)}
               />
               No
             </label>

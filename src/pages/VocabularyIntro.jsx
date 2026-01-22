@@ -13,26 +13,39 @@ export default function VocabularyIntro() {
         <h1 className="page-title">Vocabulary Test Instructions</h1>
 
         <p className="page-text">
-          You will complete <strong>80 trials</strong> to test whether you can
-          identify English words.
+          You will complete <strong>80 trials</strong> in a vocabulary (lexical
+          decision) task designed to assess your ability to recognize English
+          words.
         </p>
 
         <p className="page-text">
           On each trial, you will see a string of letters. Your task is to decide
-          whether it is an <strong>English</strong> word.
+          whether the string forms a real <strong>English</strong> word.
         </p>
 
         <p className="page-text">
-          If you believe it <strong>is</strong> an English word, click
-          <strong> YES</strong>.  
-          If you believe it is <strong>not</strong> a word, click
-          <strong> NO</strong>.
+          If you believe the string <strong>is</strong> an English word, click
+          <strong> YES</strong>. If you believe it is <strong>not</strong> an
+          English word, click <strong> NO</strong>.
+        </p>
+
+        <p className="page-text">
+          To ensure data quality, this task includes <strong>four attention-check
+          trials</strong>. These trials will clearly instruct you to select
+          either <strong>YES</strong> or <strong>NO</strong>.
+        </p>
+
+        <p className="page-text">
+          If you respond incorrectly to <strong>two or more</strong> of the four
+          attention-check trials, the study will be <strong>automatically
+          ended</strong>, and you will be redirected to Prolific to return your
+          submission.
         </p>
 
         <div className="warning-box">
           <p className="page-text" style={{ margin: 0 }}>
-            Once you begin, do not refresh the page or click “Back” — the test
-            will restart.
+            Once you begin the test, do not refresh the page or click the
+            browser’s “Back” button. Doing so will restart the task.
           </p>
         </div>
 

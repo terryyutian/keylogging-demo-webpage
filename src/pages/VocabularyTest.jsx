@@ -15,7 +15,63 @@ const ATTENTION_CHECK_STIMULUS = (expected) =>
   expected === "yes" ? "SELECT YES" : "SELECT NO";
 
 const FAIL_OUT_MESSAGE =
-  "Attention check failed. You did not pass the required attention checks. Please click OK to return to Prolific and return your submission. Thank you.";
+  "You did not pass the required attention checks. Please click OK to return to Prolific and return your submission. Thank you.";
+
+// Bucket constraint: no more than 3 consecutive words or nonwords
+const MAX_RUN_BUCKET = 3;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/**
+ * Build a sequence from two pools (words/nonwords) while enforcing maxRun <= 3.
+ * Pools are lightly shuffled once; selection is random unless maxRun reached.
+ * O(n) for n=80 (very fast).
+ */
+function buildBucketSequence(words, nonwords, maxRun = 3) {
+  const w = shuffle(words);
+  const n = shuffle(nonwords);
+
+  const out = [];
+  let lastPool = null; // "w" | "n" | null
+  let runLen = 0;
+
+  while (w.length > 0 || n.length > 0) {
+    const wAvail = w.length > 0;
+    const nAvail = n.length > 0;
+
+    let pickPool;
+
+    if (!wAvail) pickPool = "n";
+    else if (!nAvail) pickPool = "w";
+    else {
+      const mustFlip = lastPool && runLen >= maxRun;
+      if (mustFlip) {
+        pickPool = lastPool === "w" ? "n" : "w";
+      } else {
+        // Randomly select which bucket to draw from (50/50).
+        pickPool = Math.random() < 0.5 ? "w" : "n";
+      }
+    }
+
+    const item = pickPool === "w" ? w.pop() : n.pop();
+    out.push(item);
+
+    if (pickPool === lastPool) runLen += 1;
+    else {
+      lastPool = pickPool;
+      runLen = 1;
+    }
+  }
+
+  return out;
+}
 
 export default function VocabularyTest() {
   const navigate = useNavigate();
@@ -40,9 +96,12 @@ export default function VocabularyTest() {
     return m;
   }, []);
 
+  // Build bucket-randomized items on mount (replaces biased .sort(Math.random()-0.5))
   useEffect(() => {
-    const shuffled = [...VOCAB_ITEMS].sort(() => Math.random() - 0.5);
-    setItems(shuffled);
+    const words = VOCAB_ITEMS.filter((x) => x.true_word === 1);
+    const nonwords = VOCAB_ITEMS.filter((x) => x.true_word === 0);
+    const seq = buildBucketSequence(words, nonwords, MAX_RUN_BUCKET);
+    setItems(seq);
   }, []);
 
   useEffect(() => {
@@ -58,17 +117,16 @@ export default function VocabularyTest() {
   };
 
   const handleResponse = async (response) => {
-    if (terminated) return; // guard against double clicks after termination
+    if (terminated) return;
     if (!startTime || items.length === 0) return;
 
     const trialNumber = idx + 1; // 1-based
     const isAttentionCheck = attnCheckMap.has(trialNumber);
-    const expectedAttentionResponse = attnCheckMap.get(trialNumber); // "yes"/"no" or undefined
+    const expectedAttentionResponse = attnCheckMap.get(trialNumber);
 
     const item = items[idx];
     const rt_ms = Math.round(performance.now() - startTime);
 
-    // Determine correctness
     const attention_correct = isAttentionCheck
       ? response === expectedAttentionResponse
       : null;
@@ -78,8 +136,8 @@ export default function VocabularyTest() {
       : (response === "yes" && item.true_word === 1) ||
         (response === "no" && item.true_word === 0);
 
-    // Record trial in DB (including attention-check metadata)
-    await supabase.from("vocab_results").insert([
+    // Insert trial
+    const { error } = await supabase.from("vocab_results").insert([
       {
         participant_id,
         session_id,
@@ -92,16 +150,19 @@ export default function VocabularyTest() {
         correct,
         rt_ms,
 
-        // Extra fields for analysis/debugging (safe if table has these cols;
-        // if not, remove or add columns in Supabase)
-        is_attention_check: isAttentionCheck,
-        attention_expected: isAttentionCheck ? expectedAttentionResponse : null,
       },
     ]);
 
-    // Update attention-check failure count in real-time
-    let newWrongCount = attnWrongCount;
+    // If DB insert fails, stop advancing (prevents silent data loss)
+    if (error) {
+      console.error("Supabase insert failed:", error);
+      // You can show a friendly message if you want:
+      // window.alert("A network error occurred. Please try again.");
+      return;
+    }
 
+    // Update attention-check failure count
+    let newWrongCount = attnWrongCount;
     if (isAttentionCheck && !attention_correct) {
       newWrongCount = attnWrongCount + 1;
       setAttnWrongCount(newWrongCount);
@@ -113,7 +174,6 @@ export default function VocabularyTest() {
       return;
     }
 
-    // Continue task
     if (idx + 1 < items.length) setIdx(idx + 1);
     else navigate("/writing-instructions");
   };
@@ -122,12 +182,11 @@ export default function VocabularyTest() {
 
   const trialNumber = idx + 1;
   const isAttentionCheck = attnCheckMap.has(trialNumber);
-  const expected = attnCheckMap.get(trialNumber); // "yes"/"no"
+  const expected = attnCheckMap.get(trialNumber);
   const displayStimulus = isAttentionCheck
     ? ATTENTION_CHECK_STIMULUS(expected)
     : items[idx].stimulus;
 
-  // Instruction line: for attention checks, make it explicit; otherwise keep original wording
   const promptText = isAttentionCheck
     ? "Attention Check: Please follow the instruction above."
     : "Is this an English word?";

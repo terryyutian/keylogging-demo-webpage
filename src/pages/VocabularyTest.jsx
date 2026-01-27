@@ -31,8 +31,6 @@ function shuffle(arr) {
 
 /**
  * Build a sequence from two pools (words/nonwords) while enforcing maxRun <= 3.
- * Pools are lightly shuffled once; selection is random unless maxRun reached.
- * O(n) for n=80 (very fast).
  */
 function buildBucketSequence(words, nonwords, maxRun = 3) {
   const w = shuffle(words);
@@ -156,8 +154,6 @@ export default function VocabularyTest() {
     // If DB insert fails, stop advancing (prevents silent data loss)
     if (error) {
       console.error("Supabase insert failed:", error);
-      // You can show a friendly message if you want:
-      // window.alert("A network error occurred. Please try again.");
       return;
     }
 

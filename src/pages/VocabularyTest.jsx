@@ -17,10 +17,18 @@ const ATTENTION_CHECK_STIMULUS = (expected) =>
 const FAIL_OUT_MESSAGE =
   "You did not pass the required attention checks. Please click OK to return to Prolific and return your submission. Thank you.";
 
-// Bucket constraint: no more than 3 consecutive words or nonwords
-const MAX_RUN_BUCKET = 3;
+// Constraint: no more than 3 consecutive words OR nonwords (in the randomized VOCAB stream)
+const MAX_RUN = 3;
 
-function shuffle(arr) {
+// Keep attempts modest for speed; with 80 items this is still extremely fast
+const MAX_ATTEMPTS = 60;
+
+// -------------------------
+// Randomization utilities
+// -------------------------
+
+// Fisher–Yates shuffle (unbiased)
+function fisherYatesShuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -29,46 +37,53 @@ function shuffle(arr) {
   return a;
 }
 
+// Max consecutive run length for a binary category
+function maxRunLength(items, categoryFn) {
+  let maxRun = 0;
+  let curRun = 0;
+  let prev = undefined;
+
+  for (const it of items) {
+    const c = categoryFn(it); // e.g., 1 for word, 0 for nonword
+    if (c === prev) curRun += 1;
+    else {
+      curRun = 1;
+      prev = c;
+    }
+    if (curRun > maxRun) maxRun = curRun;
+  }
+  return maxRun;
+}
+
 /**
- * Build a sequence from two pools (words/nonwords) while enforcing maxRun <= 3.
+ * Fisher–Yates + constraint + retry.
+ * - Generates a full random permutation
+ * - Accepts it only if max run length <= MAX_RUN
+ * - Retries up to MAX_ATTEMPTS
+ *
+ * Designed to be fast: only runs once on mount.
  */
-function buildBucketSequence(words, nonwords, maxRun = 3) {
-  const w = shuffle(words);
-  const n = shuffle(nonwords);
-
-  const out = [];
-  let lastPool = null; // "w" | "n" | null
-  let runLen = 0;
-
-  while (w.length > 0 || n.length > 0) {
-    const wAvail = w.length > 0;
-    const nAvail = n.length > 0;
-
-    let pickPool;
-
-    if (!wAvail) pickPool = "n";
-    else if (!nAvail) pickPool = "w";
-    else {
-      const mustFlip = lastPool && runLen >= maxRun;
-      if (mustFlip) {
-        pickPool = lastPool === "w" ? "n" : "w";
-      } else {
-        // Randomly select which bucket to draw from (50/50).
-        pickPool = Math.random() < 0.5 ? "w" : "n";
-      }
-    }
-
-    const item = pickPool === "w" ? w.pop() : n.pop();
-    out.push(item);
-
-    if (pickPool === lastPool) runLen += 1;
-    else {
-      lastPool = pickPool;
-      runLen = 1;
-    }
+function constrainedShuffle(items, categoryFn, maxRun = 3, maxAttempts = 60) {
+  // Try up to maxAttempts to find a valid shuffle quickly
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const shuffled = fisherYatesShuffle(items);
+    if (maxRunLength(shuffled, categoryFn) <= maxRun) return shuffled;
   }
 
-  return out;
+  // Best-effort fallback (rare): return the shuffle with the smallest max-run found
+  let best = fisherYatesShuffle(items);
+  let bestScore = maxRunLength(best, categoryFn);
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const candidate = fisherYatesShuffle(items);
+    const score = maxRunLength(candidate, categoryFn);
+    if (score < bestScore) {
+      best = candidate;
+      bestScore = score;
+      if (bestScore <= maxRun) break;
+    }
+  }
+  return best;
 }
 
 export default function VocabularyTest() {
@@ -94,11 +109,14 @@ export default function VocabularyTest() {
     return m;
   }, []);
 
-  // Build bucket-randomized items on mount (replaces biased .sort(Math.random()-0.5))
+  // Build constrained-randomized items on mount (replaces bucket method)
   useEffect(() => {
-    const words = VOCAB_ITEMS.filter((x) => x.true_word === 1);
-    const nonwords = VOCAB_ITEMS.filter((x) => x.true_word === 0);
-    const seq = buildBucketSequence(words, nonwords, MAX_RUN_BUCKET);
+    const seq = constrainedShuffle(
+      VOCAB_ITEMS,
+      (x) => x.true_word, // 1 = word, 0 = nonword
+      MAX_RUN,
+      MAX_ATTEMPTS
+    );
     setItems(seq);
   }, []);
 
@@ -147,7 +165,6 @@ export default function VocabularyTest() {
         response,
         correct,
         rt_ms,
-
       },
     ]);
 
@@ -179,6 +196,7 @@ export default function VocabularyTest() {
   const trialNumber = idx + 1;
   const isAttentionCheck = attnCheckMap.has(trialNumber);
   const expected = attnCheckMap.get(trialNumber);
+
   const displayStimulus = isAttentionCheck
     ? ATTENTION_CHECK_STIMULUS(expected)
     : items[idx].stimulus;

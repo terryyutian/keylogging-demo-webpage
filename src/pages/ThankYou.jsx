@@ -17,7 +17,7 @@ export default function ThankYou() {
       </p>
 
       <a
-        href="https://prolific.com"
+        href="https://app.prolific.com/submissions/complete?cc=C102OL5U"
         target="_blank"
         rel="noopener noreferrer"
         style={{

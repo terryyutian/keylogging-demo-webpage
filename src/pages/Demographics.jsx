@@ -1,5 +1,5 @@
 // src/pages/Demographics.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { insertParticipant } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import "../styles/Demographics.css";
@@ -54,7 +54,37 @@ const COUNTRY_LIST = [
 const NON_NATIVE_CONFIRM_TEXT =
   "Thank you for your interest. This study is limited to native English speakers.\n\nPlease click OK to return to Prolific and return your submission.";
 
+const RETURNING_PARTICIPANT_ALERT_TEXT =
+  "You have completed this study in previous batches according to our record.\n\nPlease click OK to return to Prolific and return your submission.";
+
 const PROLIFIC_RETURN_URL = "https://app.prolific.com/";
+
+// Returning participants (normalize to lowercase for comparison)
+const RETURNING_PROLIFIC_IDS = new Set([
+  "697cdd4e32e3ba796d6bf8e2",
+  "6109afc6254bff5fc0c0d87c",
+  "657484ce078a676a635baf39",
+  "695bfaac39d75f3dd960b53f",
+  "69828b18907aeaa72e1f3e7d",
+  "696045a3e464213c52ceb0bd",
+  "5cb882d33f0af9000159e00f",
+  "667c66be2cfdb420fd63f2c9",
+  "6429ffe11a9806a9a95ad072",
+  "6938b3a102d6dfae6c72a140",
+  "662948ed99960b11f2f8e3fe",
+  "5e14ffee6f6c63b33cf77eb3",
+  "631c8e97db06f601f81bd82f",
+  "67eda7cef014b05ef5504c28",
+  "66491e9882aaa64c5d0911d5",
+  "6952b9a83256edcc4b11ebee",
+  "6978d78491ea9e2fdea1c5f0",
+  "695ff8839a2ca7f0e6a87f05",
+  "5e3adfc595ff562fbdd130fa",
+  "6792c21092dba48f9c45aab7",
+  "6772a5c5190112e5dcbf6394",
+  "5d55d562e04e1c0001f5e682",
+  "5fd66ce8aec66457ff73d743",
+]);
 
 export default function Demographics() {
   const navigate = useNavigate();
@@ -76,6 +106,9 @@ export default function Demographics() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Prevent double-alert/redirect (e.g., React StrictMode double-invokes effects in dev)
+  const hasRunReturningCheckRef = useRef(false);
+
   // -------------------------
   // LOAD PROLIFIC ID + SESSION
   // -------------------------
@@ -90,6 +123,23 @@ export default function Demographics() {
     }
     setSessionId(sid);
   }, []);
+
+  // -------------------------
+  // SCREEN: returning participant by Prolific ID → ALERT → REDIRECT
+  // -------------------------
+  useEffect(() => {
+    if (hasRunReturningCheckRef.current) return;
+    if (!prolificId) return;
+
+    hasRunReturningCheckRef.current = true;
+
+    const pidNorm = String(prolificId).trim().toLowerCase();
+    if (RETURNING_PROLIFIC_IDS.has(pidNorm)) {
+      // OK-only dialog
+      window.alert(RETURNING_PARTICIPANT_ALERT_TEXT);
+      window.location.assign(PROLIFIC_RETURN_URL);
+    }
+  }, [prolificId]);
 
   // -------------------------
   // CITIZENSHIP SELECT LOGIC
@@ -114,6 +164,11 @@ export default function Demographics() {
     if (!prolificId)
       return "Missing Prolific ID in the study link. Please return to Prolific and relaunch the study.";
 
+    // (Fail-safe) Block returning participants even if they bypass UI
+    const pidNorm = String(prolificId).trim().toLowerCase();
+    if (RETURNING_PROLIFIC_IDS.has(pidNorm))
+      return "This Prolific ID has already completed the study.";
+
     if (!form.age || Number(form.age) < 18)
       return "You must be at least 18 years old to participate.";
 
@@ -137,18 +192,15 @@ export default function Demographics() {
   // SCREEN: Q6 ("No") CONFIRM → REDIRECT TO PROLIFIC
   // -------------------------
   const handleEnglishFirstChange = (value) => {
-    // Always update the selection
     setForm((prev) => ({ ...prev, englishFirst: value }));
 
     if (value === "No") {
       const ok = window.confirm(NON_NATIVE_CONFIRM_TEXT);
 
       if (ok) {
-        // Redirect to Prolific immediately (same tab)
         window.location.assign(PROLIFIC_RETURN_URL);
         return;
       } else {
-        // Cancel means they can keep answering; clear selection to force a valid answer later
         setForm((prev) => ({ ...prev, englishFirst: "" }));
       }
     }
